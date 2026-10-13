@@ -9,3 +9,7 @@
 > - Sekcia „Mimo rozsahu V1“ nie je prázdna.
 > - Žiadna veta neobsahuje technológiu (framework, databáza, atď.).
 > - Opisuje to, čo používateľ dostane, nie ako to postavíme (žiadne zoznamy obrazoviek).
+
+## 02 – Architektúra
+
+> Read hypotekarna-kalkulacka-v2/docs/v1/01-functional.md. Propose a modular architecture. For each module give responsibility, interface and which requirements it implements.
