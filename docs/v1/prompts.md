@@ -13,3 +13,7 @@
 ## 02 – Architektúra
 
 > Read hypotekarna-kalkulacka-v2/docs/v1/01-functional.md. Propose a modular architecture. For each module give responsibility, interface and which requirements it implements.
+
+> What are two other ways to split this, and what are the trade-offs?
+
+> Read the existing file `docs/v1/02-architecture.md`. Modify it so that its structure exactly matches these mandatory sections: Stack, Modules, Dependency Direction, Data Model, and Extension Points & Decisions (also add the two recently discussed alternatives—coarse-grained modules and a configuration table—to the Decisions section). Verify that each module adheres to the Single Responsibility Principle.
