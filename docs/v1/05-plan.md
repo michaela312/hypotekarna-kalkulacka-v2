@@ -50,9 +50,20 @@ Prijatých 12 nálezov sa zapracuje do dokumentov v kroku 0 (sekcia 4), ešte pr
 
 Zamietnuté nálezy 7, 8, 9 a 15 nemenia V1. Správanie, ktoré opisujú, ostáva podľa 01 a 02 (chybný vstup dostane správu s povoleným rozsahom, nikdy nesprávny výsledok).
 
-Dve zmeny vyplynuli až z prípravy tohto plánu (pozri sekciu 7, R-01 a OQ-P1). Zapracujú sa tiež v kroku 0:
+Ďalšie zmeny vyplynuli až z prípravy tohto plánu a z kontroly plánu v `06-retro.md` (E2). Pozri sekciu 7, R-01, OQ-P1, TQ-02 a TQ-03. Zapracujú sa tiež v kroku 0:
 - 02 Stack: spustenie cez `npm start` (`node scripts/serve.js`) namiesto `python -m http.server`, lebo Python na vývojovom počítači nie je nainštalovaný.
-- 02 Stack a 03: nástroj pre testy v prehliadači (M9, e2e) podľa rozhodnutia OQ-P1.
+- 02 Stack: OQ-P1 je rozhodnutá. Testy v prehliadači (M9, M11, e2e) spúšťa `@playwright/test`, jediná položka v `devDependencies`.
+- 02 Stack: testy sú rozdelené do 2 adresárov s 2 príponami, aby každý príkaz spustil iba svoje testy:
+
+  | Príkaz | Skript v `package.json` | Súbory | Počet |
+  |--------|-------------------------|--------|------:|
+  | `npm test` | `node --test "tests/**/*.test.js"` | `tests/**/*.test.js` (Node.js) | 96 |
+  | `npm run test:e2e` | `playwright test` (`testDir: "e2e"`) | `e2e/*.spec.js` (prehliadač) | 14 |
+
+  Glob v úvodzovkách rozvinie Node.js sám, preto funguje rovnako vo Windows aj v Unixe. Overené na Node.js v24.20.0: súbory v `e2e/` sa do `npm test` nezapočítajú a pri 0 testoch je návratový kód 0.
+- 03 `test_ziadne_zavislosti`: očakávaný výstup sa mení na „`package.json` nemá kľúč `dependencies`; `devDependencies` obsahuje najviac kľúč `@playwright/test`; žiadny `import`, `<script src>` ani `<link href>` neodkazuje na `http://` alebo `https://`“. Kontrola `index.html` sa vykoná, iba ak súbor existuje (od kroku 11). Zdroj: „05 OQ-P1“.
+- 03 TQ-02 sa uzatvára: vstup iba z medzier je `'empty'` (zhoduje sa s nálezom 12, `test_validacia_iba_medzery`).
+- 03 TQ-03 sa uzatvára: M9 po oprave chyby atribút `aria-invalid` odstráni (`removeAttribute`).
 
 ## 3. Akceptačné kritériá
 
@@ -110,7 +121,7 @@ Test sa počíta ako splnený, iba ak beží (nie je `skip` ani `todo`) a jeho o
 |---|-----------|----------|
 | T-01 | Príkaz na testy prejde bez chyby. | `npm test` a `npm run test:e2e` skončia s návratovým kódom 0, 0 zlyhaných, 0 preskočených testov. |
 | T-02 | Aplikácia sa spustí jedným príkazom. | `npm start` spustí statický server na `http://localhost:8000` do 5 s a stránka sa načíta bez chyby v konzole. |
-| T-03 | README opisuje spustenie. | `README.md` obsahuje sekciu „Spustenie“ s požadovanou verziou Node.js (≥ 20) a príkazmi `npm start`, `npm test` a `npm run test:e2e` (vrátane jednorazovej inštalácie prehliadača pre testy, ak ju vyžaduje OQ-P1). |
+| T-03 | README opisuje spustenie. | `README.md` obsahuje sekciu „Spustenie“ s požadovanou verziou Node.js (≥ 22, lebo `node --test` s globom vyžaduje verziu 22) a príkazmi `npm install`, `npx playwright install chromium` (jednorazovo), `npm start`, `npm test` a `npm run test:e2e`. |
 | T-04 | Každý test uvádza ID požiadavky. | Názov testu v kóde má tvar `test_<nazov> [ID, ID]`, napr. `test_parse_cele_cislo [IN-01]` (pravidlo 3 v `CLAUDE.md`). |
 | T-05 | Každý modul uvádza ID požiadaviek. | Prvý riadok každého súboru v `src/` je komentár s modulom a ID z riadku „Implementuje“ v 02, napr. `// M1 – prevod textu na číslo. IN-01, IN-02, IN-03, FR-05`. |
 
@@ -123,7 +134,7 @@ Každý krok končí presne jedným commitom a pushom (pravidlo 4 v `CLAUDE.md`)
 | Krok | Modul | Súbory | Testy, ktoré musia prejsť | Commit |
 |-----:|-------|--------|---------------------------|--------|
 | 0 | – (dokumentácia) | `docs/v1/01-functional.md`, `02-architecture.md`, `03-test-scenarios.md` | žiadne (kód ešte neexistuje); kontrola: 03 má 110 riadkov testov a 0 značiek NEOVERENÉ | `Zapracovanie nálezov z review 04 do 01, 02 a 03` |
-| 1 | kostra projektu | `package.json`, `scripts/serve.js`, `README.md`, `tests/`, `.claude/settings.json` | `npm test` skončí s kódom 0 (0 testov); `npm start` vráti na `http://localhost:8000/` odpoveď 200 | `Kostra projektu: package.json, statický server, README` |
+| 1 | kostra projektu | `package.json`, `scripts/serve.js`, `README.md`, `.claude/settings.json`, `.claude/skills/end-session/SKILL.md`, `.gitattributes` | `npm test` skončí s kódom 0 (0 testov); `npm start` vráti na `http://localhost:8000/` odpoveď 200 | `Kostra projektu: package.json, statický server, README` |
 | 2 | M2 | `src/input/limits.js`, `tests/input/limits.test.js` | AK-M2 (1) | `M2 limits: hranice vstupov (IN-01 až IN-03)` |
 | 3 | M1 | `src/input/parse.js`, `tests/input/parse.test.js` | AK-M1 (17) + AK-M2 | `M1 parse: prevod textu na číslo (IN-01 až IN-03, FR-05)` |
 | 4 | M3 | `src/input/validate.js`, `tests/input/validate.test.js` | AK-M3 (26) + všetky predchádzajúce | `M3 validate: validácia vstupov (IN-01 až IN-03, FR-05)` |
@@ -133,16 +144,18 @@ Každý krok končí presne jedným commitom a pushom (pravidlo 4 v `CLAUDE.md`)
 | 8 | M7 | `src/text/messages.js`, `tests/text/messages.test.js` | AK-M7 (4) + všetky predchádzajúce | `M7 messages: chybové správy (FR-05)` |
 | 9 | M8 | `src/app/calculator.js`, `tests/app/calculator.test.js` | AK-M8 (15) + všetky predchádzajúce | `M8 calculator: orchestrácia výpočtu (FR-01 až FR-05, DR-04)` |
 | 10 | architektonické kontroly | `tests/architecture.test.js` | AK-ARCH (3) + všetky predchádzajúce; `npm test` = 96 testov | `Architektonické kontroly (NFR-02, NFR-03)` |
-| 11 | M11, M12 + nástroj pre testy v prehliadači | `index.html`, `styles.css`, konfigurácia podľa OQ-P1, `tests/browser/markup.test.js` | AK-M11 (1) + `npm test` (96) | `M11 markup a M12 štýly (NFR-04, AD-03, AD-08)` |
-| 12 | M9 | `src/ui/view.js`, `tests/browser/view.test.js` | AK-M9 (5) + všetky predchádzajúce | `M9 view: DOM adaptér (FR-05, NFR-04, AD-01)` |
-| 13 | M10 + e2e | `src/main.js`, `tests/browser/e2e.test.js` | AK-E2E (8) + všetky predchádzajúce; `npm test` = 96, `npm run test:e2e` = 14 | `M10 main a e2e testy (OQ-01, NFR-01, NFR-02)` |
-| 14 | záverečná kontrola | `README.md`, `docs/handoff.md` | všetkých 110; ciele C-01 až C-04 a kritériá T-01 až T-05 odškrtnuté | `V1 hotová: akceptačné kritériá splnené` |
+| 11 | M11, M12 + nástroj pre testy v prehliadači | `index.html`, `styles.css`, `package.json`, `package-lock.json`, `playwright.config.js`, `e2e/markup.spec.js`, `README.md` | AK-M11 (1) + `npm test` (96, vrátane `test_ziadne_zavislosti` nad `index.html` a `devDependencies`) | `M11 markup a M12 štýly (NFR-04, AD-03, AD-08)` |
+| 12 | M9 | `src/ui/view.js`, `e2e/view.spec.js` | AK-M9 (5) + všetky predchádzajúce | `M9 view: DOM adaptér (FR-05, NFR-04, AD-01)` |
+| 13 | M10 + e2e | `src/main.js`, `index.html` (iba značka `<script>`), `e2e/e2e.spec.js` | AK-E2E (8) + všetky predchádzajúce; `npm test` = 96, `npm run test:e2e` = 14 | `M10 main a e2e testy (OQ-01, NFR-01, NFR-02)` |
+| 14 | záverečná kontrola | `README.md`, `docs/handoff.md`, `docs/v1/06-retro.md`; súbory v `src/`, `tests/` a `e2e/` iba pri úpravách z `/simplify` | všetkých 110 (počet testov sa nezmení); ciele C-01 až C-04 a kritériá T-01 až T-05 odškrtnuté | `V1 hotová: akceptačné kritériá splnené` |
 
 Poznámky ku krokom:
 - **Krok 0** je jediný krok bez kódu. Bez neho by testy v kóde vychádzali z 03, ktoré ešte nemá nálezy z 04.
 - **Krok 6:** pred commitom subagent nezávisle prepočíta hodnoty testov AK-M4 (sekcia 6).
 - **Krok 9:** pred commitom subagent nezávisle prepočíta všetky výstupné reťazce AK-M8.
-- **Krok 11:** `test_ziadne_zavislosti` z kroku 10 odteraz kontroluje aj `index.html`.
+- **Krok 1:** `.gitattributes` s `* text=auto eol=lf` vzniká hneď, nie až pri zlyhaní (R-07).
+- **Krok 10:** `test_ziadne_zavislosti` sa píše už podľa upraveného 03 (kontrola `index.html`, iba ak existuje; `devDependencies` najviac `@playwright/test`). V kroku 11 sa preto `tests/architecture.test.js` nemení.
+- **Krok 11:** `README.md` dostane príkaz na jednorazovú inštaláciu prehliadača (`npx playwright install chromium`). `test_ziadne_zavislosti` odteraz reálne kontroluje aj `index.html`. `index.html` v krokoch 11 a 12 ešte nenačítava `src/main.js` (vznikne v kroku 13), aby v konzole nebola chyba 404 (T-02). Značka `<script type="module" src="src/main.js">` sa pridá v kroku 13 a `index.html` sa preto pridáva aj do súborov kroku 13.
 - **Krok 13:** `test_e2e_maximalne_sumy_sa_nezalomia` sa okrem automatického testu overí aj vizuálne pri šírke 320 px (sekcia 6).
 
 ## 5. Definition of Done pre každý krok
@@ -163,7 +176,7 @@ Krok je hotový, až keď platí všetkých 6 bodov:
 | Nástroj | Typ | Kedy | Prečo |
 |---------|-----|------|-------|
 | Hook na testy | hook `PostToolUse` v `.claude/settings.json` (krok 1) | po každej úprave súboru v `src/` alebo `tests/` (nástroje Edit a Write) spustí `npm test` | Zlyhaný test sa ukáže hneď po zmene, nie až pri commite. Plní D-02 automaticky. `npm test` trvá pod 2 s, preto nespomaľuje prácu. |
-| `/end-session` | vlastný skill v `.claude/skills/end-session/` (krok 1) | na konci každého kroku a každej relácie | Jednotne vykoná D-02, D-05 a D-06: spustí oba príkazy na testy, aktualizuje `docs/handoff.md` podľa šablóny, vytvorí commit so správou zo sekcie 4 a pushne. Pri zlyhanom teste skončí bez commitu. |
+| `/end-session` | vlastný skill v `.claude/skills/end-session/` (krok 1) | na konci každého kroku a každej relácie | Jednotne vykoná D-02, D-05 a D-06: spustí `npm test` a navyše `npm run test:e2e`, iba ak `package.json` obsahuje skript `test:e2e` (od kroku 11; v krokoch 1 až 10 skript neexistuje a nespúšťa sa). Potom aktualizuje `docs/handoff.md` podľa šablóny, vytvorí commit so správou zo sekcie 4 a pushne. Pri zlyhanom teste skončí bez commitu. |
 | Kontrola výpočtu subagentom | subagent (`general-purpose`) | kroky 6 a 9, pred commitom | Subagent nedostane implementáciu, iba vstupy z 03. Hodnoty prepočíta racionálnou aritmetikou cez `BigInt` ako v 04 a porovná ich s očakávanými hodnotami v testoch. Chráni pred tým, aby sa test prispôsobil chybnému kódu. |
 | Kontrola sledovateľnosti subagentom | subagent (`Explore`) | krok 14 | Overí C-02 a T-04: každé zo 16 ID požiadaviek sa nachádza v názve aspoň jedného testu a každý test z 03 existuje v kóde pod rovnakým názvom. |
 | `/code-review` | vstavaný skill | kroky 9, 12 a 13 (moduly, ktoré spájajú ostatné) | Hľadá chyby v orchestrácii a DOM adaptéri, ktoré jednotkové testy nemusia zachytiť (napr. zabudnuté odstránenie `aria-invalid`). |
@@ -177,12 +190,12 @@ Krok je hotový, až keď platí všetkých 6 bodov:
 | # | Riziko | Čo urobíme, keď nastane |
 |---|--------|-------------------------|
 | R-01 | Python, s ktorým počíta 02 Stack (`python -m http.server`), nie je na vývojovom počítači nainštalovaný. Overené: `python --version` zlyhá, Node.js je v24.20.0. | Spúšťací skript `scripts/serve.js` (približne 30 riadkov, iba vstavané moduly `node:http`, `node:fs`, `node:path`, 0 závislostí). Zmena sa zapíše do 02 Stack v kroku 0. |
-| R-02 | Testy v prehliadači (M9, e2e) potrebujú nástroj, ktorý `test_ziadne_zavislosti` zakazuje (`devDependencies`). | Rozhodne sa pred krokom 11 (OQ-P1). Kým nie je rozhodnuté, kroky 0 až 10 pokračujú, lebo od toho nezávisia. |
+| R-02 | Stiahnutie prehliadača pre Playwright (`npx playwright install chromium`) v kroku 11 zlyhá (sieť, firemný proxy). | V `playwright.config.js` sa nastaví `channel: "msedge"` a testy pobežia v nainštalovanom Microsoft Edge (overené: `msedge.exe` je na počítači). Počet testov (14) ani `devDependencies` sa nemenia. Zmena sa zapíše do `README.md`. |
 | R-03 | M5: posun exponentu cez reťazec zlyhá, ak `String(value)` vráti exponenciálny zápis (`1e-7`, `1e21`). | Hodnoty pod 1e-6 rieši pravidlo z 02 M5. Najväčšia suma vo V1 je 6 015 667,27, teda ďaleko pod 1e21. Ak test zlyhá, nová hodnota sa doplní ako test do 03 a M5 sa opraví bez zmeny rozhrania. |
 | R-04 | Test M4 alebo M8 zlyhá kvôli inému poradiu operácií v type `number`. | Upraví sa kód podľa vzorca v rozhraní M4 (`monthlyPayment * n`), nie očakávaná hodnota. Hodnoty sú dvakrát nezávisle overené v 04. Ak by sa líšil výsledok aj pri vzorci z 02, rozhodne subagent výpočtom cez `BigInt`. |
-| R-05 | Odozva nad 100 ms (`test_e2e_odozva_do_100ms`) kvôli pomalému štartu prehliadača, nie kvôli výpočtu. | Meria sa od poslednej udalosti `input` po zmenu textu cez `performance.now()` v stránke, nie čas celého testu. Pri zlyhaní sa test spustí 3×. Ak zlyhá aspoň 2×, hľadá sa príčina v M9 alebo M10. Hranica 100 ms sa nezvyšuje bez zmeny NFR-01 v 02. |
+| R-05 | Odozva nad 100 ms (`test_e2e_odozva_do_100ms`) kvôli pomalému štartu prehliadača, nie kvôli výpočtu. | Meria sa od poslednej udalosti `input` po zmenu textu cez `performance.now()` v stránke, nie čas celého testu. Opakovanie testov je vypnuté (`retries: 0`). Každé zlyhanie je chyba: krok sa neuzavrie, kým sa príčina v M9 alebo M10 neodstráni (T-01 platí bez výnimky). V kroku 14 musí `npm run test:e2e` prejsť 3× za sebou (3 z 3 behov, 0 zlyhaných). Hranica 100 ms sa nezvyšuje bez zmeny NFR-01 v 02. |
 | R-06 | Pri šírke 320 px sa suma `6 015 667,27 €` nezmestí do riadku. | `white-space: nowrap` ostáva (M12). Upraví sa rozloženie: popis a hodnota pod sebou, menšie písmo hodnoty. Test sa nemení. |
-| R-07 | Architektonické testy na Windows zlyhajú kvôli cestám alebo koncom riadkov (`\r\n`). | Cesty cez `node:path`, regulárne výrazy s `\r?\n`. Do repozitára sa pridá `.gitattributes` s `* text=auto eol=lf`. |
+| R-07 | Architektonické testy na Windows zlyhajú kvôli cestám alebo koncom riadkov (`\r\n`). | Cesty cez `node:path`, regulárne výrazy s `\r?\n`. `.gitattributes` s `* text=auto eol=lf` je v repozitári už od kroku 1. |
 | R-08 | Kód sa odchýli od dokumentov (test v kóde má inú hodnotu než 03). | 03 je zdroj pravdy. Zmena očakávanej hodnoty ide najprv do 03 v samostatnom commite s odôvodnením (pravidlo v 3.1). Krok 14 to skontroluje subagentom. |
 | R-09 | `git push` zlyhá (overenie na GitHube, sieť). | Commit ostane lokálne a zlyhanie sa zapíše do `docs/handoff.md`. Ďalší krok nezačne, kým push neprejde, aby na GitHube nechýbali kroky. |
 
@@ -190,8 +203,8 @@ Krok je hotový, až keď platí všetkých 6 bodov:
 
 | # | Otázka | Návrh | Kedy rozhodnúť |
 |---|--------|-------|----------------|
-| OQ-P1 | Ktorý nástroj spustí 14 testov v prehliadači? `test_ziadne_zavislosti` dnes zakazuje `devDependencies`, ale NFR-02 hovorí iba o závislostiach **za behu**. | Povoliť jedinú vývojovú závislosť `@playwright/test` v `devDependencies`. `test_ziadne_zavislosti` upraviť tak, aby kontroloval iba kľúč `dependencies` a externé URL. Aplikácia ostane bez závislostí za behu (C-04). Alternatíva bez závislostí (vlastné ovládanie prehliadača cez Chrome DevTools Protocol) je krehká a pracná. | Pred krokom 11. Ak sa prijme, zmena 03 a 02 Stack je samostatný commit. |
-| TQ-02 | Je vstup iba z medzier `'empty'`? (otvorené z 03, review nerozhodlo) | Áno, `'empty'`. Vyplýva z orezania medzier v M1 a používateľ dostane rovnakú správu ako pri prázdnom poli. Predpokladajú to `test_parse_iba_medzery` a nový `test_validacia_iba_medzery`. | V kroku 0, pred krokom 3. |
-| TQ-03 | Má M9 po oprave chyby atribút `aria-invalid` odstrániť, alebo nastaviť na `"false"`? (otvorené z 03, review nerozhodlo) | Odstrániť (`removeAttribute`). Platné pole nepotrebuje atribút a `aria-describedby` sa odstráni spolu s ním. Test overuje iba, že hodnota nie je `"true"`, preto návrh ho nemení. | Pred krokom 12. |
+| OQ-P1 | Ktorý nástroj spustí 14 testov v prehliadači? `test_ziadne_zavislosti` dnes zakazuje `devDependencies`, ale NFR-02 hovorí iba o závislostiach **za behu**. | **Rozhodnuté (2026-10-15):** jediná vývojová závislosť `@playwright/test` v `devDependencies`. `test_ziadne_zavislosti` kontroluje kľúč `dependencies`, obsah `devDependencies` a externé URL (sekcia 2.2). Aplikácia ostane bez závislostí za behu (C-04). Alternatíva bez závislostí (vlastné ovládanie prehliadača cez Chrome DevTools Protocol) bola zamietnutá, lebo je krehká a pracná. | Uzavreté. Zmena 02 Stack a 03 sa zapracuje v kroku 0. |
+| TQ-02 | Je vstup iba z medzier `'empty'`? (otvorené z 03, review nerozhodlo) | **Rozhodnuté (2026-10-15):** áno, `'empty'`. Vyplýva z orezania medzier v M1 a používateľ dostane rovnakú správu ako pri prázdnom poli. Predpokladajú to `test_parse_iba_medzery` a nový `test_validacia_iba_medzery` (nález 12). | Uzavreté. Zapracuje sa v kroku 0. |
+| TQ-03 | Má M9 po oprave chyby atribút `aria-invalid` odstrániť, alebo nastaviť na `"false"`? (otvorené z 03, review nerozhodlo) | **Rozhodnuté (2026-10-15):** odstrániť (`removeAttribute`). Platné pole nepotrebuje atribút a `aria-describedby` sa odstráni spolu s ním. Test overuje iba, že hodnota nie je `"true"`, preto sa nemení. | Uzavreté. Zapracuje sa v kroku 0. |
 | TQ-04 | Závislosť testu zvyšku pri 0 % od poradia operácií. | Uzatvára ju nález 11: test overí `\|úrok\| < 1e-6`. | Uzavreté v kroku 0. |
 | TQ-05 | Preklep v príklade M6. | Uzatvára ho nález 14. | Uzavreté v kroku 0. |
