@@ -4,11 +4,11 @@
 
 > Interview me about the functional scope of V1 for my calculator app. Ask one question at a time. Push back when I add features that don't belong in V1. Make sure we cover: Purpose, Functional requirements, Inputs and boundaries, Domain rules, Out of scope for V1, and Open questions. Start with the first question.
 
-> Skontroluj teraz práve vytvorený súbor `docs/v1/01-functional.md` oproti tomuto kontrolnému zoznamu a ak niečo nesedí, uprav to:
-> - Každá požiadavka má vstup, výstup a aspoň jeden príklad s konkrétnymi hodnotami.
-> - Sekcia „Mimo rozsahu V1“ nie je prázdna.
-> - Žiadna veta neobsahuje technológiu (framework, databáza, atď.).
-> - Opisuje to, čo používateľ dostane, nie ako to postavíme (žiadne zoznamy obrazoviek).
+> Check the newly created `docs/v1/01-functional.md` file against this checklist and make adjustments if anything does not match:
+> - Each requirement includes an input, an output, and at least one example with specific values.
+> - The "Out of Scope for V1" section is not empty.
+> - No sentence mentions specific technologies (frameworks, databases, etc.).
+> - It describes what the user receives, not how we build it (no lists of screens).
 
 ## 02 – Architektúra
 
