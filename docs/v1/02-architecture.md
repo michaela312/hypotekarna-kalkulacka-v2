@@ -37,6 +37,7 @@ Každý modul má **jednu zodpovednosť**, teda jeden dôvod na zmenu. Ten je uv
 Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 
 ### M1 `src/input/parse.js` – prevod textu na číslo
+- **Jednou vetou:** Prevedie surový text vstupného poľa na číslo podľa pravidiel zápisu z `01-functional.md`.
 - **Zodpovednosť:** prevedie surový text zo vstupného poľa na číslo podľa pravidiel zápisu z časti 3 v `01-functional.md`.
   - Orezá medzery na začiatku a na konci.
   - Odstráni medzery medzi číslicami (`150 000` → `150000`).
@@ -52,6 +53,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** IN-01, IN-02, IN-03 (pravidlá zápisu čísla), FR-05 (podmienky „je prázdny“ a „nie je číslo“).
 
 ### M2 `src/input/limits.js` – hranice vstupov
+- **Jednou vetou:** Uchováva hranice každého vstupu.
 - **Zodpovednosť:** je jediným miestom, kde sú hranice a povolený počet desatinných miest každého vstupu. Obsahuje iba dáta, žiadnu logiku.
 - **Dôvod zmeny:** zmena tabuľky vstupov v `01-functional.md`.
 - **Rozhranie:**
@@ -64,6 +66,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** IN-01, IN-02, IN-03 (hodnoty hraníc).
 
 ### M3 `src/input/validate.js` – validácia vstupov
+- **Jednou vetou:** Rozhodne o platnosti každého vstupu podľa hraníc z M2.
 - **Zodpovednosť:**
   - Pre každé pole overí podmienky v tomto poradí: prázdne → nie je číslo → priveľa desatinných miest → mimo rozsahu. Hranice berie z M2, text parsuje cez M1.
   - Validuje všetky tri polia naraz, aby sa zobrazili všetky chyby, nielen prvá (FR-05, príklad 3).
@@ -76,6 +79,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** IN-01, IN-02, IN-03, FR-05 (zistenie neplatného vstupu).
 
 ### M4 `src/domain/mortgage.js` – výpočet
+- **Jednou vetou:** Vypočíta nezaokrúhlené výsledky úveru podľa DR-01 alebo DR-02.
 - **Zodpovednosť:**
   - Vypočíta mesačnú splátku, celkovú sumu a celkový úrok z platných čísel.
   - Pre sadzbu > 0 použije DR-01, pre sadzbu = 0 použije DR-02.
@@ -91,6 +95,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** FR-01, FR-02, FR-03, DR-01, DR-02, DR-03 (žiadne zaokrúhľovanie medzivýsledkov).
 
 ### M5 `src/domain/rounding.js` – zaokrúhľovanie
+- **Jednou vetou:** Zaokrúhli číslo matematicky (polovica nahor) na zadaný počet desatinných miest.
 - **Zodpovednosť:**
   - Zaokrúhli číslo na daný počet desatinných miest matematicky (polovica nahor).
   - Musí byť odolný voči chybám binárnej aritmetiky: `1.005` → `1.01`, nie `1.00`. Rieši sa posunom exponentu cez reťazec (`Number(value + 'e2')`), nie násobením `value * 100`.
@@ -104,6 +109,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** DR-03.
 
 ### M6 `src/format/money.js` – formát čísel a súm
+- **Jednou vetou:** Prevedie číslo na text v slovenskom formáte podľa FR-04.
 - **Zodpovednosť:**
   - Prevedie číslo na text v slovenskom formáte: medzera ako oddeľovač tisícov, desatinná čiarka, pevný počet desatinných miest.
   - Pri sumách pridá ` €` za číslo. Pred formátovaním zaokrúhli cez M5.
@@ -117,6 +123,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** FR-04, DR-03 (zaokrúhlenie zobrazených výsledkov).
 
 ### M7 `src/text/messages.js` – chybové správy
+- **Jednou vetou:** Vytvorí slovenský text chybovej správy s povoleným rozsahom poľa.
 - **Zodpovednosť:**
   - Zostaví slovenskú chybovú správu s povoleným rozsahom z hraníc (M2) a formátu čísla (M6).
   - Pre všetky kódy chýb jedného poľa vráti tú istú správu, lebo FR-05 vyžaduje iba povolený rozsah.
@@ -132,6 +139,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** FR-05 (obsah chybovej správy).
 
 ### M8 `src/app/calculator.js` – orchestrácia
+- **Jednou vetou:** Riadi poradie krokov jedného výpočtu od surových textov po `CalculationResult`.
 - **Zodpovednosť:**
   - Riadi jeden výpočet od surových textov po hotové reťazce: M3 → M4 → M6, pri chybe M7.
   - Ak je niektorý vstup neplatný, nevráti žiadne výsledky.
@@ -144,6 +152,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** FR-01 až FR-05 (end-to-end), DR-04 (akceptačné testy na referenčných príkladoch).
 
 ### M9 `src/ui/view.js` – DOM adaptér
+- **Jednou vetou:** Synchronizuje stránku HTML s dátovým modelom aplikácie.
 - **Zodpovednosť:** prekladá medzi DOM a dátovým modelom. Žiadna logika výpočtu ani validácie.
   - Prečíta hodnoty polí ako surové texty, bez `valueAsNumber`.
   - Pri stave `ok` zobrazí tri výsledky a odstráni chyby.
@@ -159,6 +168,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** FR-05 (žiadne výsledky pri chybe), OQ-01, NFR-01, NFR-04.
 
 ### M10 `src/main.js` – vstupný bod
+- **Jednou vetou:** Prepojí moduly pri načítaní stránky.
 - **Zodpovednosť:** pri načítaní stránky prepojí M9 a M8 a vykoná prvý výpočet. Neobsahuje žiadnu inú logiku.
 - **Dôvod zmeny:** zmena spôsobu prepojenia modulov.
 - **Rozhranie:**
@@ -170,6 +180,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** OQ-01 (AD-01), NFR-01.
 
 ### M11 `index.html` – markup
+- **Jednou vetou:** Definuje statickú štruktúru stránky.
 - **Zodpovednosť:**
   - Statická štruktúra stránky: tri polia `type="text"` s `inputmode="decimal"` a `<label>`, prvky pre chybové správy a blok výsledkov.
   - Polia sú predvyplnené referenčným príkladom 100 000 / 4 / 30 (AD-08).
@@ -178,6 +189,7 @@ Overenie princípu jednej zodpovednosti (SRP) je na konci tejto sekcie.
 - **Implementuje:** NFR-04 (labely), AD-03.
 
 ### M12 `styles.css` – vzhľad
+- **Jednou vetou:** Určuje vizuálnu podobu stránky.
 - **Zodpovednosť:** vizuálna podoba stránky vrátane `white-space: nowrap` pre sumy a zvýraznenia neplatného poľa.
 - **Dôvod zmeny:** zmena vzhľadu.
 - **Rozhranie:** CSS triedy a selektory na atribúty z M11 (napr. `[aria-invalid="true"]`).
@@ -301,16 +313,24 @@ Invarianty:
 
 ### Body rozšírenia
 
-Ako by sa do tejto architektúry pridali funkcie, ktoré sú vo V1 mimo rozsahu (časť 5 v `01-functional.md`):
+Každá funkcia odložená v časti 5 `01-functional.md` má určené miesto, kam sa neskôr zapojí.
+**Vo V1 sa žiadny bod rozšírenia neimplementuje vopred.** Nevznikajú prázdne moduly, parametre, ktoré nikto nepoužíva, ani plugin mechanizmus.
+Body rozšírenia sú iba miesta, kde sa existujúca štruktúra rozšíri bez prepisovania modulov M1–M8.
 
-| Rozšírenie | Kde sa zapojí | Čo sa nemení |
-|------------|---------------|--------------|
-| Nový vstup (poplatky, cena nehnuteľnosti / LTV) | Záznam v M2, text v M7, pole v M11, kľúč v `RawInput` | M1, M5, M6 |
-| Splátkový kalendár | Nový doménový modul `domain/schedule.js` so vstupom `LoanParams`. M8 rozšíri `results`, M9 dostane vykreslenie tabuľky | M4, M1–M3 |
-| Grafy | Nový UI modul `ui/chart.js` nad dátami kalendára | Doména, vstupy |
-| Prepínanie jazyka | M7 dostane parameter jazyka (slovník textov) | Všetko okrem M7 a M11 |
-| Iná mena | M6 dostane parameter meny | Doména, vstupy |
-| Uloženie / zdieľanie výpočtu | Nový modul, ktorý serializuje `RawInput` (napr. do URL). Vstupom M10 je potom `RawInput` z URL namiesto predvyplnených hodnôt | M1–M8 |
+Spoločný vzor pre nový vstup (ďalej „nový vstup“): záznam v M2, text v M7, pole v M11, kľúč v `RawInput`. M1 sa nemení.
+
+| # | Odložená funkcia (01, časť 5) | Bod rozšírenia | Čo sa nemení |
+|---|-------------------------------|----------------|--------------|
+| EP-01 | Splátkový kalendár | Nový doménový modul `domain/schedule.js` so vstupom `LoanParams`, ktorý vráti riadky kalendára. M8 rozšíri `results`, M9 vykreslí tabuľku. | M1–M5 |
+| EP-02 | Grafy | Nový UI modul `ui/chart.js` nad výstupom EP-01. | Doména, vstupy |
+| EP-03 | Mimoriadne a predčasné splátky | Nový vstup pre zoznam splátok. `domain/schedule.js` (EP-01) dostane zoznam mimoriadnych splátok v `LoanParams`. Predpokladom je EP-01. | M4, M5, M6 |
+| EP-04 | Poplatky, poistenie, RPMN | Nové vstupy pre poplatky a poistenie. Nový doménový modul `domain/apr.js` vypočíta RPMN z `LoanParams` a poplatkov. | M4 (splátka sa nemení) |
+| EP-05 | Fixácie a zmeny sadzby | `LoanParams.annualRatePct` sa nahradí zoznamom období so sadzbou. Prepočet splátky po každom období robí `domain/schedule.js` (EP-01) opakovaným volaním vzorca z M4. | M4 (vzorec), M5, M6 |
+| EP-06 | Bonita (koľko si môžem požičať) | Samostatný tok, lebo je to iná otázka: `domain/affordability.js`, `app/affordability.js`, vlastný formulár. Zdieľa M1, M5, M6. | Celý tok hypotéky (M2–M4, M7–M9) |
+| EP-07 | Cena nehnuteľnosti, vlastné zdroje, LTV | Nové vstupy. Nový doménový modul `domain/ltv.js` vypočíta LTV a výšku úveru (cena − vlastné zdroje), ktorá vstúpi do `LoanParams.principal`. | M4, M5, M6 |
+| EP-08 | Ukladanie a zdieľanie výpočtov | Nový modul `app/share.js` serializuje `RawInput` do URL a späť. M10 načíta `RawInput` z URL namiesto predvyplnených hodnôt (AD-08). | M1–M9 |
+| EP-09 | Viac mien | M6 dostane parameter meny. M2 bude mať hranice IN-01 pre každú menu. | Doména (M4, M5) |
+| EP-10 | Prepínanie jazyka | M7 dostane slovník textov podľa jazyka. Popisy v M11 sa budú vypĺňať zo slovníka. | M1–M6, M8 |
 
 ### Nefunkčné požiadavky
 
@@ -374,3 +394,14 @@ src/main.js
 
 **Dôvod odloženia:** vo V1 sa neoplatí. Architektúra je však pripravená na postupný prechod: M2 (`LIMITS`) už je malá konfiguračná tabuľka. Keď pribudnú ďalšie vstupy, môže dostať aj popisy a šablóny správ (dnes M7) bez prepisovania M1, M3 a M8.
 Spúšťač prehodnotenia: viac ako 5 vstupov.
+
+### Kontrola pred ďalšou vrstvou
+
+| # | Kontrola | Výsledok | Dôkaz |
+|---|----------|----------|-------|
+| K-01 | Každú požiadavku z vrstvy 1 implementuje aspoň jeden modul. | Splnené (12/12) | Matica sledovateľnosti v sekcii Modules pokrýva FR-01 až FR-05, IN-01 až IN-03 a DR-01 až DR-04. Rozhodnutie OQ-01 je v AD-01. |
+| K-02 | Každý modul sa dá opísať jednou vetou bez spojky „a“. | Splnené (12/12) | Riadok „Jednou vetou“ pri M1 až M12. Hraničný prípad je M9 (čítanie formulára aj vykreslenie). Je to jeden adaptér s jedným dôvodom zmeny (markup M11), pozri overenie SRP. |
+| K-03 | Výpočtový modul nezávisí od UI ani od databázy. | Splnené | M4 a M5 neimportujú žiadny modul (pravidlo 2 v Dependency Direction). M8 je bez DOM (NFR-03). V1 nemá databázu ani trvalý stav (Data Model, invarianty). Dodržanie overí test importov (pravidlo 6). |
+| K-04 | Každá odložená funkcia má bod rozšírenia. | Splnené (10/10) | EP-01 až EP-10 zodpovedajú riadkom tabuľky v časti 5 `01-functional.md`. |
+| K-05 | Moduly nie sú rozdelené podľa technických vrstiev (frontend/backend). | Splnené | Každý modul je definovaný zodpovednosťou a dôvodom zmeny. Priečinky `input/`, `domain/`, `format/`, `text/`, `app/`, `ui/` iba zoskupujú moduly podľa témy. Delenie frontend/backend neexistuje, celá aplikácia beží v prehliadači. |
+| K-06 | Architektúra je pre V1, nie pre V5. | Splnené | Vo V1 vzniká iba M1 až M12. Body rozšírenia EP-01 až EP-10 sa neimplementujú vopred. ALT-02 (konfiguračná tabuľka) je odložená. Moduly nemajú parametre jazyka ani meny. Z 12 modulov sú 3 súbory, ktoré má každá stránka (`main.js`, `index.html`, `styles.css`). |

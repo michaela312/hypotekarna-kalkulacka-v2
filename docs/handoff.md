@@ -9,6 +9,8 @@
   - nefunkčné požiadavky NFR-01 až NFR-04;
   - rozhodnutia AD-01 až AD-09;
   - zvážené alternatívy ALT-01 (hrubé moduly, zamietnuté) a ALT-02 (konfiguračná tabuľka, odložené);
+  - body rozšírenia EP-01 až EP-10 pre všetkých 10 odložených funkcií;
+  - kontrola pred ďalšou vrstvou K-01 až K-06 (všetky splnené);
   - matica sledovateľnosti.
 - OQ-01 je rozhodnutá (AD-01): výsledky sa prepočítajú pri každej zmene vstupu.
 - Kód zatiaľ neexistuje.
