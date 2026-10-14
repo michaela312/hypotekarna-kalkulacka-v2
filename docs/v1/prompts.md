@@ -48,3 +48,20 @@
 > Build a mortgage calculator.
 
 Surový prompt pre subagenta bez podkladov z `docs/v1/`. Výsledok je v `06-retro.md`.
+
+## 06 – Retrospektíva (experiment E2)
+
+Spoločné zadanie kontroly pre časť A aj B:
+
+> Skontroluj `docs/v1/05-plan.md` voči `01-functional.md`, `02-architecture.md`, `03-test-scenarios.md` a `04-review.md` (všetko v `docs/v1/`). Hľadaj: rozpory medzi dokumentmi, chýbajúce alebo nesplniteľné akceptačné kritériá, nesprávne počty testov, požiadavky bez testu alebo bez kroku, nejasné či nemerateľné formulácie (pravidlo: čísla, nie prídavné mená), chyby v poradí krokov a závislostiach, riziká bez mitigácie.
+> Každý nález klasifikuj: blocker (plán sa nedá realizovať alebo vedie k zlému výsledku), major (vedie k prepracovaniu alebo nejasnosti v kroku), minor (formulácia, preklep, kozmetika). Pri každom náleze uveď presné miesto (súbor + sekcia/riadok) a dôkaz (citát alebo počet).
+
+Časť A (tá istá session) dostala navyše úvod:
+
+> Si autor implementačného plánu V1 … Pokračuješ v tej istej session, v ktorej si plán vytvoril. Aby si mal svoj kontext, najprv si prečítaj svoje poznámky: `docs/handoff.md` a `docs/v1/prompts.md` … V handoffe máš zaznamenané, že review (04) skončilo s 0 blockermi a plán je schválený na realizáciu.
+
+Časť B (čistá session) dostala navyše úvod:
+
+> Si nezávislý kontrolór. … čítaj IBA súbory `docs/v1/01-functional.md`, `02-architecture.md`, `03-test-scenarios.md`, `04-review.md` a `05-plan.md`. Nečítaj `docs/handoff.md`, `docs/v1/prompts.md`, `docs/v1/06-retro.md` ani git históriu.
+
+Výsledok je v `06-retro.md`.

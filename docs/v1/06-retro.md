@@ -103,3 +103,77 @@ Na `main` zatiaľ **neexistuje kód**: plán je hotový (vrstvy 1 až 5), implem
 ### Ďalšie kroky
 
 - Po kroku 14 z `05-plan.md` spustiť `npm test` a `npm run test:e2e` a doplniť sem skutočný počet prejdených testov verzie s plánom.
+
+## Experiment E2: kontrola v tej istej session vs. v čistej session
+
+**Otázka:** Nájde kontrolór s kontextom autora (tá istá session) menej chýb ako kontrolór bez neho (čistá session)? Inými slovami: potvrdzuje kontrola v autorskej session iba vlastné predpoklady?
+
+**Dátum:** 2026-10-15.
+
+**Kontrolovaný dokument:** `05-plan.md` voči `01` až `04` (stav commitu `f4015fc`). Podľa `handoff.md` je to ďalší krok („test kvality plánu“).
+
+### Postup
+
+1. Obidve časti dostali **rovnaké zadanie kontroly** (`prompts.md`, sekcia 06 – E2) a rovnakú stupnicu závažnosti ako v `04`: blocker, major, minor. Bežali súbežne ako dva subagenty (`general-purpose`, rovnaký model).
+2. **Časť A – tá istá session (autorský kontext).** Kontrolór dostal rámec „si autor plánu a pokračuješ v session, v ktorej si ho vytvoril“. Pred kontrolou si prečítal `handoff.md` a `prompts.md`, teda autorove poznámky vrátane záznamu, že review (04) skončilo s 0 blockermi a plán je schválený.
+3. **Časť B – čistá session.** Kontrolór smel čítať iba `01` až `05`. Zakázané mal `handoff.md`, `prompts.md`, `06-retro.md` aj git históriu.
+4. Nálezy oboch častí sa porovnali. Nálezy, ktoré opisujú ten istý problém, sa zlúčili do jedného. Pri 6 zo 7 majorov z časti B sa citované riadky v `05`, `03` a `02` overili ručne a všetky sedia.
+
+### 1. Výsledky
+
+| Ukazovateľ | Časť A (tá istá session) | Časť B (čistá session) |
+|------------|-------------------------:|-----------------------:|
+| Blocker | 0 | 0 |
+| Major | 5 | 7 |
+| Minor | 9 | 13 |
+| **Nálezy spolu** | **14** | **20** |
+| Rôzne problémy (po zlúčení duplicít) | 14 z 22 (64 %) | 18 z 22 (82 %) |
+| Nálezy, ktoré našla iba táto časť | 4 | 8 |
+| Čas / volania nástrojov | 150 s / 11 | 127 s / 6 |
+| Verdikt | nepripravený na realizáciu | pripravený až po oprave 7 majorov |
+
+Spolu ide o 22 rôznych problémov. 10 z nich našli obidve časti, 4 iba časť A a 8 iba časť B.
+
+**Nájdené v oboch častiach (10).** Patria sem všetky problémy závažnosti major:
+
+| Problém | A | B |
+|---------|---|---|
+| OQ-P1 sa podľa §2.2 zapracuje v kroku 0, podľa R-02 a §7.2 až pred krokom 11 | major | major |
+| `node --test` bez cesty spustí aj `tests/browser/*.test.js`, takže `npm test` = 96 neplatí | major | major |
+| `test_ziadne_zavislosti` (03) zakazuje `devDependencies`, ktoré krok 11 pridá, a súbor testu nie je v kroku 11 | major | major |
+| `/end-session` spúšťa `test:e2e` aj v krokoch 1 až 10, keď tento skript ešte neexistuje | major | major |
+| Súbory mimo stĺpca „Súbory“ (skill v kroku 1, `.gitattributes`, `/simplify` v kroku 14) porušujú D-04 | major | 2× major |
+| R-05 „3× / aspoň 2×“ je nejasné a odporuje T-01 („0 zlyhaných“) | minor | major |
+| `test_e2e_maximalne_sumy_sa_nezalomia` po náleze 11 nemá ID požiadavky | minor | minor |
+| Rozdiely v `04` pri EP-09 (a EP-05) sa do `02` nedostanú | minor | minor |
+| Nemerateľné formulácie (R-06 „menšie písmo“, hook „pod 2 s“) | minor | minor |
+| Úvod §4 neopisuje skutočné poradie krokov (M3 je pred M5) | minor | minor |
+
+**Iba časť A (4):** krok 0 neaktualizuje tabuľku pokrytia v `03`, TQ-02 je fakticky rozhodnutý nálezom 12, ID v správach commitov (kroky 6 a 12) sa líšia od `02`, chýba náhradné riešenie, ak sa OQ-P1 zamietne.
+
+**Iba časť B (8):** 4 hodnoty z `03` nie sú v `04` overené, hoci ich plán označí ako overené. 2 nové testy nemajú presný výstup (iba „→ platné“). Predvyplnené hodnoty nemajú ID požiadavky. Formát `test_<nazov> [ID]` (T-04) je v rozpore s „rovnakým názvom ako v 03“. T-05 vynecháva M11 a M12 mimo `src/`. TQ-02 chýba v tabuľke kroku 0. Riadok 19 v `02` („iba … `test`“) sa neaktualizuje. `index.html` v krokoch 11 a 12 načítava `src/main.js`, ktorý ešte neexistuje (404 v konzole, v rozpore s T-02).
+
+### 2. Čo z toho vyplýva
+
+- **Čistá session našla o 43 % viac nálezov (20 vs. 14) a o 4 rôzne problémy viac (18 vs. 14).** Kontrolór A prehliadol 8 z 22 problémov (36 %), kontrolór B 4 (18 %).
+- **Rozdiel je v šírke, nie v tom najzávažnejšom.** Všetkých 5 problémov závažnosti major, ktoré našla časť A, našla aj časť B. Nálezy iba z časti B sa týkajú takmer výhradne sledovateľnosti a presnosti testov (ID, presné výstupy, overenie hodnôt). To sú presne miesta, kde autor „vie, čo tým myslel“, a preto medzeru nevidí.
+- **Autorský kontext má aj prínos.** 2 zo 4 nálezov, ktoré našla iba časť A (TQ-02 je už rozhodnutý, chýba záložné riešenie pre OQ-P1), vyžadujú poznať históriu rozhodnutí. Autorský kontext teda nie je bezcenný, iba nestačí sám.
+- **Skutočná tá istá session plán odovzdala ako hotový.** Session, ktorá napísala `05`, ho commitla a v handoffe ho označila za hotový, pričom neuviedla ani jeden z 5 majorov, ktoré teraz nezávisle našli obidva kontrolóri. Rozpor medzi D-04 a stĺpcom „Súbory“ by sa prejavil už v kroku 1.
+
+### 3. Záver: prečo je pravidlo nezávislosti vo Vrstve 4 kľúčové
+
+1. **Autor kontroluje to, čo zamýšľal, nie to, čo napísal.** Z 8 problémov, ktoré našla iba čistá session, 7 vzniká medzi dvoma miestami dokumentov (napr. T-04 vs. „rovnaký názov“, T-05 vs. M11/M12, §2.2 vs. `04`). Kto pozná zámer, v hlave ich spojí a rozpor neuvidí.
+2. **Kontrola v tej istej session má tendenciu potvrdiť, že je hotovo.** Pôvodná autorská session odovzdala `05` bez jediného nálezu. Nezávislé kontroly našli 5 až 7 majorov. Bez kontroly v čistom kontexte by sa tieto chyby ukázali až pri stavbe: v kroku 1 (`/end-session`, D-04) a v kroku 11 (`npm test`, `test_ziadne_zavislosti`). Tam je oprava drahšia, lebo už existuje kód a commity.
+3. **Nezávislosť je lacná.** Časť B trvala 127 s a 6 volaní nástrojov, menej ako časť A. Nezávislá kontrola teda nič nestojí navyše, iba musí bežať v novom kontexte.
+4. **Pravidlo pre ďalšie vrstvy:** kontrolu robí session alebo subagent, ktorý nevidí `handoff.md`, prompty ani históriu, iba kontrolované dokumenty. Autorský kontext sa môže pridať ako **druhá**, doplnková kontrola, nie ako náhrada. Plán `05` už takto počíta so subagentmi v krokoch 6, 9 a 14.
+
+### Obmedzenia experimentu
+
+- **n = 1** pre každú časť. Rozdiel 14 vs. 20 je z jedného behu a pri opakovaní sa môže zmeniť.
+- **Časť A je simulácia.** Skutočná autorská session (tá, ktorá napísala `05`) už neexistuje. Kontrolór A dostal autorove poznámky a rámec „si autor“, ale nie jeho skutočné úvahy počas písania. Skutočné skreslenie autora je preto pravdepodobne väčšie, ako ukazuje tabuľka.
+- Kontrolór A dostal pokyn „skontroluj“ s rovnakou stupnicou, nie „potvrď“, a plán neschválil (verdikt „nepripravený“). Autorská session bez explicitného zadania kontroly ho odovzdala ako hotový (bod 2 v Závere).
+- Zlučovanie duplicít a počet rôznych problémov (22) je ručné rozhodnutie. Hranica medzi „ten istý“ a „podobný“ problém je subjektívna.
+
+### Ďalšie kroky
+
+- Pred krokom 0 opraviť v `05-plan.md` 5 spoločných majorov a R-05, potom posúdiť minor nálezy z oboch častí (spolu 22 problémov).
