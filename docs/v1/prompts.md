@@ -25,3 +25,20 @@
 > - Every deferred function has an extension point.
 >
 > A common mistake: modules based on technical layers (frontend, backend) rather than responsibility. Another common mistake: an architecture for V5 instead of V1. You design for what you are building now, while leaving a clear place for what is to come.
+
+## 05 – Implementačný plán
+
+> Read docs/v1/01-functional.md, docs/v1/02-architecture.md, docs/v1/03-test-scenarios.md, and docs/v1/04-review.md.
+>
+> Write docs/v1/05-plan.md following this exact structure:
+> 1. Ciele V1 (2-4 merateľné ciele, ktoré sa dajú na konci odškrtnúť áno/nie).
+> 2. Rozsah (odkaz na 01, zoznam požiadaviek vo V1 a explicitne uvedené zmeny vyplynulé z kontroly v 04-review.md).
+> 3. Akceptačné kritériá:
+>    - Funkčné: konkrétny zoznam testov z 03-test-scenarios.md, ktoré musia prejsť. Žiadne vágnuce kritériá, iba konkrétne testy.
+>    - Technické: príkaz na testy prejde bez chyby, aplikácia sa spustí jedným príkazom, README opisuje spustenie.
+> 4. Poradie stavby (moduly zoradené podľa závislostí z 02-architecture.md. Pri každom kroku uveď: modul, testy, ktoré musia prejsť, a jeden commit).
+> 5. Definition of Done pre každý krok (testy daného modulu zelené, staré testy ostávajú zelené, commit, handoff).
+> 6. Nástroje pri stavbe (ktoré skills, hooks a subagents použijete, napr. /end-session, hook na testy, kontrola výpočtu subagentom, a prečo).
+> 7. Riziká a otvorené otázky (čo môže zlyhať a čo urobíte, keď to zlyhá).
+>
+> Uistite sa, že text je v slovenčine (s výnimkou názvov súborov či kódov ak je to nutné) a striktne dodržiava štruktúru.

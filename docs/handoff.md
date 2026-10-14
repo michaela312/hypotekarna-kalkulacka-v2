@@ -20,12 +20,18 @@
   - Potvrdené rozhodnutia: AD-08 (predvyplnené hodnoty, nález 3), návrh TQ-01 (`RangeError` v M4 až M6, nález 11), oprava preklepu TQ-05 (nález 14).
   - Súhrn modulov, ktoré sa musia zmeniť pri EP-01, EP-05 a EP-09.
 - OQ-01 je rozhodnutá (AD-01): výsledky sa prepočítajú pri každej zmene vstupu.
+- **Hotové: Vrstva 5 – `docs/v1/05-plan.md`** (implementačný plán):
+  - ciele C-01 až C-04 (áno/nie);
+  - rozsah a tabuľka zmien z 12 prijatých nálezov 04, vrátane 13 nových testov s názvami (spolu 110 testov: 96 v Node.js cez `npm test`, 14 v prehliadači cez `npm run test:e2e`);
+  - akceptačné kritériá AK-M1 až AK-E2E (zoznam testov podľa mien) a technické T-01 až T-05;
+  - poradie stavby: kroky 0 až 14, každý s modulom, testami a jedným commitom;
+  - Definition of Done D-01 až D-06;
+  - nástroje: hook `PostToolUse` na `npm test`, skill `/end-session`, subagent na kontrolu výpočtu (kroky 6 a 9) a sledovateľnosti (krok 14), `/code-review`, `/simplify`, Playwright MCP;
+  - riziká R-01 až R-09 a otvorené otázky OQ-P1, TQ-02, TQ-03.
+- Zistené pri plánovaní: Python na počítači nie je nainštalovaný, preto sa `python -m http.server` nahradí skriptom `scripts/serve.js` (R-01).
 - Kód zatiaľ neexistuje.
 
 ## Ďalšie kroky
-1. Vytvoriť `docs/v1/05-plan.md` (Vrstva 5 – implementačný plán).
-2. Zapracovať prijaté nálezy z `04-review.md` do 01, 02 a 03:
-   - 01: pravidlo koncových núl (nález 1), preformulovanie FR-02 (nález 2), predvyplnené hodnoty po načítaní (nález 3);
-   - 02: riadky EP-01, EP-05 a EP-08 (nálezy 4 až 6), matica sledovateľnosti (nález 13), príklad M6 (nález 14), opakovateľný opis overenia v M5 (nález 16);
-   - 03: odstrániť značky NEOVERENÉ a doplniť Zdroj (`04`), nové testy (nálezy 1, 10, 12), úpravy testov (nález 11).
-3. Otvorené zostávajú TQ-02 (vstup iba z medzier) a TQ-03 (`aria-invalid` po oprave chyby). Review (04) ich nerozhodlo.
+1. Rozhodnúť OQ-P1 (nástroj pre testy v prehliadači, návrh: `@playwright/test` v `devDependencies`), TQ-02 (návrh: `'empty'`) a TQ-03 (návrh: `removeAttribute`). Pozri `05-plan.md` sekcia 7.2.
+2. Krok 0 z `05-plan.md`: zapracovať prijaté nálezy z 04 do 01, 02 a 03 podľa tabuľky v sekcii 2.2 (vrátane 13 nových testov a zmeny spúšťania v 02 Stack).
+3. Krok 1: kostra projektu (`package.json`, `scripts/serve.js`, `README.md`, hook na testy, skill `/end-session`).
