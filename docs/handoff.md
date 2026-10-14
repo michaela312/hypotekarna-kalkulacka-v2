@@ -12,12 +12,15 @@
   - body rozšírenia EP-01 až EP-10 pre všetkých 10 odložených funkcií;
   - kontrola pred ďalšou vrstvou K-01 až K-06 (všetky splnené);
   - matica sledovateľnosti.
+- Hotové: `docs/v1/03-test-scenarios.md` – testovacie scenáre ako tabuľky (Test, Úroveň, Modul, Overuje požiadavku, Vstup, Očakávaný výstup, Zdroj, Typ) pre M1 až M9, architektonické kontroly a e2e; pokrytie požiadaviek; otvorené otázky TQ-01 až TQ-04.
+  - Číselné očakávané hodnoty sú označené NEOVERENÉ a stĺpec Zdroj je prázdny. Hodnoty sa overia nezávisle.
 - OQ-01 je rozhodnutá (AD-01): výsledky sa prepočítajú pri každej zmene vstupu.
 - Kód zatiaľ neexistuje.
 
 ## Ďalšie kroky
-1. Spísať testovacie scenáre v `docs/v1/03-test-scenarios.md`. Pre každú požiadavku (FR, IN, DR, NFR) uviesť scenáre s ID a modul, na ktorom sa testuje (podľa matice v 02-architecture.md).
+1. Nezávisle overiť hodnoty označené NEOVERENÉ v `docs/v1/03-test-scenarios.md`, doplniť stĺpec Zdroj a značky odstrániť.
 2. Pri review (04) overiť rozhodnutia, ktoré 01-functional.md nepokrýva:
    - predvyplnené hodnoty 100 000 / 4 / 30 pri načítaní (AD-08, M11);
    - jedna správa na pole pre všetky typy chýb (M7);
-   - hodnoty pod 1e-6 sa zaokrúhlia na 0 (M5).
+   - hodnoty pod 1e-6 sa zaokrúhlia na 0 (M5);
+   - otvorené otázky k testom TQ-01 až TQ-03 (správanie M4 až M6 pri vstupe mimo kontraktu, vstup iba z medzier, `aria-invalid` po oprave chyby).
