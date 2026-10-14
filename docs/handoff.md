@@ -20,7 +20,7 @@
   - Potvrdené rozhodnutia: AD-08 (predvyplnené hodnoty, nález 3), návrh TQ-01 (`RangeError` v M4 až M6, nález 11), oprava preklepu TQ-05 (nález 14).
   - Súhrn modulov, ktoré sa musia zmeniť pri EP-01, EP-05 a EP-09.
 - OQ-01 je rozhodnutá (AD-01): výsledky sa prepočítajú pri každej zmene vstupu.
-- **Hotové: Vrstva 5 – `docs/v1/05-plan.md`** (implementačný plán):
+- **Hotové: Vrstva 5 – Finálny plán V1 (`docs/v1/05-plan.md`) je úspešne dokončená, commitnutá (`3f33ec4`) a pushnutá do `main`. Plán je pripravený na test kvality.** Obsah:
   - ciele C-01 až C-04 (áno/nie);
   - rozsah a tabuľka zmien z 12 prijatých nálezov 04, vrátane 13 nových testov s názvami (spolu 110 testov: 96 v Node.js cez `npm test`, 14 v prehliadači cez `npm run test:e2e`);
   - akceptačné kritériá AK-M1 až AK-E2E (zoznam testov podľa mien) a technické T-01 až T-05;
@@ -32,6 +32,7 @@
 - Kód zatiaľ neexistuje.
 
 ## Ďalšie kroky
-1. Rozhodnúť OQ-P1 (nástroj pre testy v prehliadači, návrh: `@playwright/test` v `devDependencies`), TQ-02 (návrh: `'empty'`) a TQ-03 (návrh: `removeAttribute`). Pozri `05-plan.md` sekcia 7.2.
-2. Krok 0 z `05-plan.md`: zapracovať prijaté nálezy z 04 do 01, 02 a 03 podľa tabuľky v sekcii 2.2 (vrátane 13 nových testov a zmeny spúšťania v 02 Stack).
-3. Krok 1: kostra projektu (`package.json`, `scripts/serve.js`, `README.md`, hook na testy, skill `/end-session`).
+1. Test kvality plánu `05-plan.md`.
+2. Rozhodnúť OQ-P1 (nástroj pre testy v prehliadači, návrh: `@playwright/test` v `devDependencies`), TQ-02 (návrh: `'empty'`) a TQ-03 (návrh: `removeAttribute`). Pozri `05-plan.md` sekcia 7.2.
+3. Krok 0 z `05-plan.md`: zapracovať prijaté nálezy z 04 do 01, 02 a 03 podľa tabuľky v sekcii 2.2 (vrátane 13 nových testov a zmeny spúšťania v 02 Stack).
+4. Krok 1: kostra projektu (`package.json`, `scripts/serve.js`, `README.md`, hook na testy, skill `/end-session`).
