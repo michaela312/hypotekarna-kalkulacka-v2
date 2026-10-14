@@ -42,3 +42,9 @@
 > 7. Riziká a otvorené otázky (čo môže zlyhať a čo urobíte, keď to zlyhá).
 >
 > Uistite sa, že text je v slovenčine (s výnimkou názvov súborov či kódov ak je to nutné) a striktne dodržiava štruktúru.
+
+## 06 – Retrospektíva (experiment E1)
+
+> Build a mortgage calculator.
+
+Surový prompt pre subagenta bez podkladov z `docs/v1/`. Výsledok je v `06-retro.md`.

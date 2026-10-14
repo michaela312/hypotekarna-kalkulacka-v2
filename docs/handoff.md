@@ -29,6 +29,7 @@
   - nástroje: hook `PostToolUse` na `npm test`, skill `/end-session`, subagent na kontrolu výpočtu (kroky 6 a 9) a sledovateľnosti (krok 14), `/code-review`, `/simplify`, Playwright MCP;
   - riziká R-01 až R-09 a otvorené otázky OQ-P1, TQ-02, TQ-03.
 - Zistené pri plánovaní: Python na počítači nie je nainštalovaný, preto sa `python -m http.server` nahradí skriptom `scripts/serve.js` (R-01).
+- **Hotové: `docs/v1/06-retro.md` – experiment E1.** Subagent dostal iba prompt „Build a mortgage calculator.“. Jeho výstup splnil 40 z 97 scenárov z 03 (51 zlyhalo, 6 N/A). Výpočet a 0 % úrok mal správne. Zlyhal na formáte súm, hraniciach vstupov, slovenských správach a prístupnosti. Strana „s plánom“ zatiaľ nemá kód. Skutočný počet prejdených testov treba doplniť po kroku 14.
 - Kód zatiaľ neexistuje.
 
 ## Ďalšie kroky
@@ -36,3 +37,4 @@
 2. Rozhodnúť OQ-P1 (nástroj pre testy v prehliadači, návrh: `@playwright/test` v `devDependencies`), TQ-02 (návrh: `'empty'`) a TQ-03 (návrh: `removeAttribute`). Pozri `05-plan.md` sekcia 7.2.
 3. Krok 0 z `05-plan.md`: zapracovať prijaté nálezy z 04 do 01, 02 a 03 podľa tabuľky v sekcii 2.2 (vrátane 13 nových testov a zmeny spúšťania v 02 Stack).
 4. Krok 1: kostra projektu (`package.json`, `scripts/serve.js`, `README.md`, hook na testy, skill `/end-session`).
+5. Po kroku 14: doplniť do `06-retro.md` výsledok `npm test` a `npm run test:e2e` verzie s plánom.
