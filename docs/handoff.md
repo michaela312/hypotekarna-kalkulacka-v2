@@ -1,6 +1,33 @@
 # Handoff
 
-## Aktuálny stav
+## V2 – prechod na 4 časti (frontend, API, backend FastAPI, Supabase)
+
+### Aktuálny stav V2
+- Používateľka chce kalkulačku prerobiť na 4 časti. Kód zatiaľ neexistuje ani vo V1, takže V2 sa plánuje rovno, bez prepisovania kódu.
+- Hotové: `docs/v2/01-functional.md`:
+  - FR-01 až FR-05, IN-01 až IN-03 a DR-01 až DR-04 sú prevzaté z V1 bez zmeny;
+  - nové požiadavky FR-06 až FR-11 (mimoriadna splátka v 2 režimoch, ušetrený úrok, chyby, uloženie, zoznam 20 výpočtov);
+  - nové vstupy IN-04 až IN-06 a pravidlá DR-05 až DR-10;
+  - 8 referenčných príkladov overených dvoma nezávislými výpočtami (cyklus po mesiacoch aj uzavretý vzorec, zhoda na 4 desatinné miesta);
+  - otvorené otázky OQ-V2-01 až OQ-V2-03.
+- Hotové: `docs/v2/02-architecture.md`:
+  - 22 modulov: B1 až B15, B7a, S1, F1 až F5;
+  - mapovanie M1 až M12 z V1 na nové moduly;
+  - pravidlá závislostí, dátový model a SQL tabuľky `calculations`;
+  - NFR-V2-01 až NFR-V2-08, rozhodnutia AD-V2-01 až AD-V2-12 a riziká R-V2-01 až R-V2-05.
+- Hotové: `docs/v2/api-contract.md` – endpointy `POST /api/calculate`, `POST /api/calculations`, `GET /api/calculations` a `GET /api/health`, pravidlá API-R1 až API-R7.
+- Oproti prvému návrhu v chate je jeden endpoint pre výpočet aj mimoriadnu splátku namiesto dvoch (AD-V2-04).
+
+### Ďalšie kroky V2
+1. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
+2. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
+3. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
+
+---
+
+## V1
+
+### Aktuálny stav
 - Vytvorená štruktúra repozitára: `README.md`, `CLAUDE.md`, `docs/handoff.md`, `docs/v1/`.
 - Hotové: `docs/v1/01-functional.md` – funkčné požiadavky V1 (FR-01 až FR-05, IN-01 až IN-03, DR-01 až DR-04, mimo rozsahu, otvorené otázky).
 - Hotové: `docs/v1/02-architecture.md` – modulárna architektúra so sekciami Stack, Modules, Dependency Direction, Data Model, Extension Points & Decisions:
@@ -40,7 +67,7 @@
   - R-05: `retries: 0`, každé zlyhanie je chyba, v kroku 14 musí `test:e2e` prejsť 3 z 3 behov. R-02 má teraz záložné riešenie cez Microsoft Edge.
 - Kód zatiaľ neexistuje.
 
-## Ďalšie kroky
+### Ďalšie kroky V1
 1. Posúdiť minor nálezy z E2 (`06-retro.md`, E2, sekcia 1: 17 problémov mimo majorov).
 2. Krok 0 z `05-plan.md`: zapracovať prijaté nálezy z 04 a zmeny zo sekcie 2.2 do 01, 02 a 03 (vrátane 13 nových testov, OQ-P1, TQ-02, TQ-03 a zmeny spúšťania v 02 Stack).
 3. Krok 1: kostra projektu (`package.json`, `scripts/serve.js`, `README.md`, `.gitattributes`, hook na testy, skill `/end-session`).
