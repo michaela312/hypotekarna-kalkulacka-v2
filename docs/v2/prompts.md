@@ -42,3 +42,11 @@
 > I want to create the Frontend (JavaScript + HTML) for the mortgage calculator to complete our 4-tier architecture. Before writing any code, please ask me a few quick questions about how I want it structured (e.g., simple single HTML file, styling preferences, or how it should handle errors), and then wait for my answers.
 
 Odpovede na 4 otázky: štruktúra – jeden HTML súbor; vzhľad – čistý, minimalistický; výpočet a chyby – živý výpočet a správa pri nedostupnom backende; rozsah – iba základný výpočet.
+
+## Supabase – ukladanie každého výpočtu
+
+> Please fully integrate Supabase into our mortgage calculator backend so that data is actually stored in the database:
+> 1. Update the calculation endpoint (POST /api/calculate) so that every valid calculation is automatically saved into our Supabase 'calculations' table using our backend helper.
+> 2. If we have environment variables or a local .env setup, make sure the backend correctly reads them and handles database operations.
+> 3. Write automated unit/integration tests for the database saving logic (mocking the Supabase response so tests pass reliably without needing a live internet connection).
+> 4. Run the entire test suite, commit the changes to git, push to main, and update docs/handoff.md.

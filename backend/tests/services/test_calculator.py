@@ -1,8 +1,10 @@
 """Akceptačné testy B9 run_calculation – FR-01 až FR-05, DR-04. Scenáre z docs/v1/03-test-scenarios.md (M8)."""
+from decimal import Decimal
+
 import pytest
 
 from app.input.validate import RawInput
-from app.services.calculator import CalculationResponse, Results, run_calculation
+from app.services.calculator import CalculationResponse, Results, SavedValues, run_calculation
 
 AMOUNT = 'Výška úveru musí byť od 1 000 do 1 000 000 €.'
 RATE = 'Ročná úroková sadzba musí byť od 0 do 20 %.'
@@ -37,7 +39,7 @@ YEARS = 'Doba splácania musí byť od 1 do 30 rokov.'
 ])
 def test_vypocet_platny(raw, expected):
     """FR-01, FR-02, FR-03, FR-04"""
-    result = run_calculation(RawInput(*raw))
+    result = run_calculation(RawInput(*raw)).response
     assert result == CalculationResponse(status='ok', results=Results(*expected))
     assert result.errors == {}
 
@@ -52,6 +54,28 @@ def test_vypocet_platny(raw, expected):
 ])
 def test_vypocet_neplatny(raw, errors):
     """FR-05: pri chybe žiadne výsledky."""
-    result = run_calculation(RawInput(*raw))
+    result = run_calculation(RawInput(*raw)).response
     assert result == CalculationResponse(status='invalid', errors=errors)
     assert result.results is None
+
+
+@pytest.mark.parametrize('raw, expected', [
+    pytest.param(('100 000', '4', '30'), ('100000.00', '4.00', 30, '477.42', '171869.51', '71869.51'),
+                 id='test_ulozenie_referencny_priklad FR-10 DR-04 r1'),
+    pytest.param(('1000', '0', '29'), ('1000.00', '0.00', 29, '2.87', '1000.00', '0.00'),
+                 id='test_ulozenie_bez_zapornej_nuly FR-10 DR-03'),
+    pytest.param(('99999,99', '4.25', '25'), ('99999.99', '4.25', 25, '541.74', '162521.41', '62521.42'),
+                 id='test_ulozenie_desatinne_vstupy FR-10 IN-01 IN-02'),
+])
+def test_ulozenie_zaokruhlene_hodnoty(raw, expected):
+    """FR-10, AD-V2-08: na uloženie idú platné vstupy a výsledky zaokrúhlené na 0,01 €, rovnaké ako zobrazené."""
+    amount, rate, years, monthly, total, interest = expected
+    assert run_calculation(RawInput(*raw)).values == SavedValues(
+        amount=Decimal(amount), rate=Decimal(rate), years=years,
+        monthly_payment=Decimal(monthly), total_paid=Decimal(total), total_interest=Decimal(interest),
+    )
+
+
+def test_ulozenie_neplatny_vstup():
+    """FR-05, FR-10: pri neplatnom vstupe nie je čo uložiť."""
+    assert run_calculation(RawInput('999', '4', '30')).values is None

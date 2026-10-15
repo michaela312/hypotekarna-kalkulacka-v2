@@ -37,12 +37,20 @@
   - overené v prehliadači: predvyplnené hodnoty, 2 chyby naraz, 6 rýchlych zmien = 1 požiadavka, staršia odpoveď sa zahodí, chyba siete, timeout 5 s, obnovenie, 375 px bez vodorovného posunu;
   - 8 statických testov v `backend/tests/test_frontend.py` (spolu 168 testov); Playwright e2e zatiaľ nie sú;
   - `.claude/launch.json` spúšťa backend na porte 8000 pre náhľad v prehliadači.
+- **Hotové: ukladanie do Supabase (AD-V2-14, nahrádza AD-V2-07):**
+  - `POST /api/calculate` uloží každý platný výpočet ako nový riadok v `calculations`; ukladá sa v `BackgroundTasks` po odoslaní odpovede, chyba databázy sa iba zapíše do logu;
+  - B9 vracia `CalculationOutcome` (`response` + `SavedValues` zaokrúhlené na 0,01 €), B12 `repository.py` (`CalculationRepository`, `InMemoryRepository`, `StorageError`), B13 `supabase_repository.py`, B14 vyberá úložisko pri štarte (`lifespan`) podľa `STORAGE`;
+  - bez `backend/.env` (a bez `STORAGE=memory`) sa backend nespustí a vypíše chýbajúcu premennú;
+  - testy: 196 prechádza; Supabase sa simuluje cez `httpx.MockTransport` so skutočnou knižnicou `supabase` (overená URL, hlavičky, telo, 7 typov chýb), `tests/conftest.py` zaručí, že žiadny test nejde na internet;
+  - ručne overené: pri nedostupnej Supabase odpoveď za 28 ms a v logu „Výpočet sa nepodarilo uložiť do Supabase: timed out“;
+  - **neoverené proti skutočnej Supabase** – `backend/.env` zatiaľ neexistuje;
+  - známy dôsledok: pri písaní vzniká riadok pri každej pauze ≥ 300 ms s platnými hodnotami (aj duplicitné).
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
 ### Ďalšie kroky V2
 1. B6 mimoriadna splátka (FR-06 až FR-09) a kľúč `extra` v B10; akceptačné testy na 8 riadkoch DR-10.
-2. Založiť projekt Supabase a spustiť migráciu (README). Potom B12, `supabase_repository.py` (B13), `SavedValues` v B9 a endpointy FR-10, FR-11.
+2. Založiť projekt Supabase, spustiť migráciu a vyplniť `backend/.env` (README); overiť, že po výpočte pribudne riadok. Rozhodnúť, či obmedziť duplicitné riadky (AD-V2-14). Potom `GET /api/calculations` (FR-11) a zoznam vo frontende.
 3. Frontend: polia mimoriadnej splátky, tlačidlo „Uložiť výpočet“ a zoznam (po B6, FR-10, FR-11) a Playwright e2e testy.
 4. Rozhodnúť OQ-V2-05 a OQ-V2-06 z `01-architecture-v2.md` (doplnenie `SavedExtra` do 02, premenovanie súboru); OQ-V2-04 je rozhodnutá.
 5. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).

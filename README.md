@@ -1,7 +1,7 @@
 # Hypotekárna kalkulačka v2
 
 Hypotekárna kalkulačka so 4 časťami: frontend (HTML + JS), API, backend (Python, FastAPI) a databáza Supabase.
-Plán V2 je v `docs/v2/`. Hotový je základný výpočet (FR-01 až FR-05) v backende aj vo frontende a príprava Supabase (tabuľka a pripojenie).
+Plán V2 je v `docs/v2/`. Hotový je základný výpočet (FR-01 až FR-05) v backende aj vo frontende. Každý platný výpočet sa automaticky uloží do tabuľky `calculations` v Supabase (AD-V2-14).
 
 ## Spustenie
 
@@ -9,6 +9,12 @@ Z priečinka `backend/` (inštalácia v `backend/README.md`):
 
 ```bash
 .venv/Scripts/python.exe -m uvicorn app.main:app
+```
+
+Pred prvým spustením nastavte Supabase a `backend/.env` (časť „Nastavenie Supabase“). Bez nich sa backend nespustí a vypíše, ktorá premenná chýba. Bez Supabase sa dá spustiť s pamäťovým úložiskom (záznamy zmiznú po vypnutí):
+
+```bash
+STORAGE=memory .venv/Scripts/python.exe -m uvicorn app.main:app
 ```
 
 Potom otvorte http://127.0.0.1:8000/. Súbor `frontend/index.html` nefunguje otvorený priamo z disku, lebo volá API na tom istom serveri.
@@ -64,6 +70,12 @@ Ak pri `STORAGE=supabase` niektorá premenná chýba, backend vypíše jej názo
 - Kľúč **`anon` (public)** aplikácia nepoužíva. Frontend nepristupuje k Supabase priamo, iba cez backend (AD-V2-06). Tabuľka má zapnuté RLS bez politík, takže s kľúčom `anon` sa z nej nedá nič prečítať ani zapísať.
 - `backend/.env` je v `.gitignore`. Test `backend/tests/test_secrets.py` overuje, že sa súbor `.env` nedostane do gitu a že `.env.example` neobsahuje hodnoty (NFR-V2-06).
 - Ak sa kľúč `service_role` predsa dostane von, vygenerujte nový v **Project Settings → API** a starý prestane platiť.
+
+### Overenie, že sa ukladá
+
+Po spustení backendu zadajte vo formulári platné hodnoty. V Supabase **Table Editor → calculations** pribudne nový riadok. Ak sa uloženie nepodarí, výpočet sa aj tak zobrazí a v termináli backendu je správa „Výpočet sa nepodarilo uložiť do Supabase: …“.
+
+Každá pauza pri písaní (≥ 300 ms) s platnými hodnotami vytvorí nový riadok (AD-V2-14).
 
 ### Pozastavený projekt
 

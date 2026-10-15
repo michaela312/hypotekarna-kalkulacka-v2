@@ -398,7 +398,7 @@ Invarianty:
 - Text sa na číslo prevádza iba v B1. Vo frontende sa neprevádza vôbec.
 - Zaokrúhľuje sa iba v B5 (cez B7 alebo pri `SavedValues`). `LoanResult` a `ExtraResultRaw` sú vždy nezaokrúhlené (DR-03).
 - `status: 'invalid'` nikdy neobsahuje výsledky a `status: 'ok'` nikdy neobsahuje chyby (FR-05, FR-09).
-- Do databázy sa zapisuje iba cez `POST /api/calculations`, nikdy pri `POST /api/calculate` (AD-V2-07).
+- Každý platný výpočet z `POST /api/calculate` sa uloží ako nový riadok, až po odoslaní odpovede. Chyba databázy výpočet nepokazí (AD-V2-14).
 - Uložený záznam sa už neprepočítava. Ak sa neskôr zmení vzorec, staré záznamy zostanú také, ako boli zobrazené (AD-V2-08).
 
 ## Extension Points & Decisions
@@ -438,12 +438,13 @@ Nahrádzajú NFR-01 až NFR-03 z V1. NFR-04 V1 platí ďalej ako súčasť NFR-V
 | AD-V2-04 | Jeden endpoint `POST /api/calculate` pre základný výpočet aj mimoriadnu splátku (namiesto dvoch endpointov z prvého návrhu). | Mimoriadna splátka potrebuje tie isté IN-01 až IN-03. Pri dvoch endpointoch by frontend posielal vstupy dvakrát a musel by spájať chyby z dvoch odpovedí, čo je logika vo frontende. |
 | AD-V2-05 | Backend servíruje `frontend/` cez `StaticFiles`. | Frontend aj API majú rovnaký pôvod, takže netreba CORS a stačí jeden príkaz na spustenie. Kompromis: frontend sa nedá nasadiť samostatne bez EP-V2-05. |
 | AD-V2-06 | K Supabase pristupuje iba backend kľúčom `service_role`. RLS je zapnuté bez politík. | Kľúč nikdy nie je v prehliadači. Ani anon kľúč nemá prístup k tabuľke. |
-| AD-V2-07 | Ukladá sa iba po kliknutí na „Uložiť výpočet“. | Pri automatickom ukladaní by vznikol záznam pri každom prepočte, aj s polovične napísanými hodnotami. |
+| AD-V2-07 | **Nahradené AD-V2-14.** ~~Ukladá sa iba po kliknutí na „Uložiť výpočet“.~~ | Pri automatickom ukladaní by vznikol záznam pri každom prepočte, aj s polovične napísanými hodnotami. |
 | AD-V2-08 | Ukladajú sa platné vstupy ako čísla a výsledky zaokrúhlené na 0,01 €. Pri čítaní sa neprepočítavajú. | Záznam ukazuje to, čo videl používateľ. Kompromis: surové texty sa neukladajú (pozri EP-V2-04). |
 | AD-V2-09 | Úložisko je za rozhraním `CalculationRepository`. Testy a e2e používajú `InMemoryRepository`. | Testy nepotrebujú internet ani účet Supabase. Kompromis: B13 sa overí iba ručným testom proti skutočnej databáze. |
 | AD-V2-10 | Zaokrúhľuje sa cez `Decimal(repr(x))` a `ROUND_HALF_UP`. | `repr` dáva najkratší zápis floatu rovnako ako JavaScript v V1, takže `1.005` → `1.01`. `round()` v Pythone zaokrúhľuje na párne číslo. |
 | AD-V2-11 | Zostatok sa počas splácania nezaokrúhľuje (DR-03 platí aj pre DR-05). | Rovnaké pravidlo ako vo V1. Kompromis: výsledky sa môžu od banky líšiť o niekoľko centov (poznámka v časti 5 `01-functional.md`). |
 | AD-V2-12 | Backend overí výpočet znova aj pri ukladaní a neverí výsledkom z frontendu. | Do databázy sa nedostane výsledok, ktorý backend nevypočítal. |
+| AD-V2-14 | **Nahrádza AD-V2-07:** `POST /api/calculate` uloží každý platný výpočet do `calculations` automaticky. Ukladá sa v `BackgroundTasks` až po odoslaní odpovede; `StorageError` sa iba zapíše do logu. | Rozhodnutie používateľky (2026-10-15). Odpoveď nečaká na Supabase (overené: 28 ms pri nedostupnej Supabase) a výpočet funguje aj bez databázy. Kompromis: pri písaní vzniká riadok pri každej pauze ≥ 300 ms s platnými hodnotami, aj pri rovnakých hodnotách; tlačidlo „Uložiť výpočet“ (FR-10) tým stráca zmysel. Riešenie, ak to bude prekážať: ukladať iba pri zmene hodnôt alebo vrátiť AD-V2-07. |
 | AD-V2-13 | **Mení štruktúru F1–F5:** frontend je jeden súbor `frontend/index.html` s vloženým CSS a JS. F1 až F5 sú oddiely v ňom, nie samostatné súbory. | Rozhodnutie používateľky (2026-10-15). Jeden súbor sa ľahko prečíta a nič nenačítava. Kompromis: oddelenie F3/F4/F5 drží iba poradie a komentáre v skripte, nie hranice modulov; pravidlo 5 overuje statický test. |
 
 ### Riziká

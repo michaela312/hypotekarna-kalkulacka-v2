@@ -149,7 +149,7 @@ Typy, pravidlá API-R1 až API-R7 a HTTP kódy sú v `api-contract.md`. Táto č
 
 | Metóda a cesta | Požiadavka | Úspech | Chyby | Zapisuje do DB | Požiadavky |
 |----------------|------------|--------|-------|----------------|------------|
-| `POST /api/calculate` | `CalculationRequest` | 200 `CalculationResponse` | 422 kontrakt | nie (AD-V2-07) | FR-01 až FR-09 |
+| `POST /api/calculate` | `CalculationRequest` | 200 `CalculationResponse` | 422 kontrakt | áno, 1 riadok pri platnom vstupe, po odpovedi (AD-V2-14) | FR-01 až FR-09 |
 | `POST /api/calculations` | `CalculationRequest` | 201 `{ id, createdAt }` | 422 neplatný vstup alebo kontrakt, 503 | áno, 1 riadok | FR-10 |
 | `GET /api/calculations` | – | 200 `{ items: SavedCalculation[] }` (0 až 20) | 503 | nie | FR-11 |
 | `GET /api/health` | – | 200 `{ "status": "ok" }` | – | nie | NFR-V2-08 |
