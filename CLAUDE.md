@@ -23,5 +23,8 @@ Hypotekárna kalkulačka v2. Projekt je vo fáze plánovania V1.
 
 Dokumenty v `docs/v1/` a `docs/v2/` sa spracúvajú v číselnom poradí. Na konci každej relácie sa aktualizuje `docs/handoff.md`.
 
+## Kód
+- `backend/` – Python backend V2 (FastAPI). Testy: `backend/.venv/Scripts/python.exe -m pytest` z priečinka `backend/`. Postup v `backend/README.md`.
+
 ## Konvencie
 - Nikdy necommitovať tajné údaje ani súbory `.env`.

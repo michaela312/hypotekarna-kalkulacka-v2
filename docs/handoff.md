@@ -18,12 +18,23 @@
 - Hotové: `docs/v2/api-contract.md` – endpointy `POST /api/calculate`, `POST /api/calculations`, `GET /api/calculations` a `GET /api/health`, pravidlá API-R1 až API-R7.
 - Hotové: `docs/v2/01-architecture-v2.md` – implementačný pohľad po 4 vrstvách (frontend, API, backend, Supabase): atribúty DOM a stavy UI, kompletné JSON príklady vrátane 422, kostra Pydantic modelov B10, endpointy B11, pripojenie Supabase s timeoutom 4 s, mapovanie 17 stĺpcov, postup založenia projektu. Nové otvorené body OQ-V2-04 až OQ-V2-06.
 - Oproti prvému návrhu v chate je jeden endpoint pre výpočet aj mimoriadnu splátku namiesto dvoch (AD-V2-04).
+- **Hotové: backend V2, 1. časť** (`backend/`, Python 3.13, FastAPI 0.143.1):
+  - moduly B1–B5, B7–B11, B14 podľa `02-architecture.md`; výpočet prenesený zo špecifikácie V1 (DR-01 až DR-04), lebo JS kód V1 nikdy nevznikol;
+  - `POST /api/calculate` a `GET /api/health` podľa `api-contract.md`; kľúč `extra` v požiadavke zatiaľ nie je (pribudne s B6), v odpovedi je vždy `extra: null`;
+  - 124 testov `pytest` (scenáre M1–M8 z `docs/v1/03-test-scenarios.md`, API, NFR-V2-02, NFR-V2-03), všetky prechádzajú;
+  - hodnoty označené v 03 V1 ako NEOVERENÉ sú overené nezávislým výpočtom s presnosťou 60 číslic a všetky sedia;
+  - TQ-01 zapracované ako `ValueError` (Python ekvivalent `RangeError`);
+  - B1 navyše akceptuje nezalomiteľné medzery U+00A0 a U+202F.
+- Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
+- Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
 ### Ďalšie kroky V2
-1. Rozhodnúť OQ-V2-04 až OQ-V2-06 z `01-architecture-v2.md` (text pre nedostupný výpočet, doplnenie `SavedExtra` do 02, premenovanie súboru).
-2. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
-3. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
-4. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
+1. B6 mimoriadna splátka (FR-06 až FR-09) a kľúč `extra` v B10; akceptačné testy na 8 riadkoch DR-10.
+2. B12, B13, S1 (Supabase) a endpointy FR-10, FR-11.
+3. Rozhodnúť OQ-V2-04 až OQ-V2-06 z `01-architecture-v2.md` (text pre nedostupný výpočet, doplnenie `SavedExtra` do 02, premenovanie súboru).
+4. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
+5. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
+6. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
 
 ---
 

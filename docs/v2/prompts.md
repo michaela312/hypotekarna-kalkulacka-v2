@@ -21,3 +21,11 @@
 > 3. Backend (Python): FastAPI or lightweight service performing the mortgage and extra payment calculations.
 > 4. Supabase: Database schema (tables for calculations, user history, or inputs) and connection setup.
 > Keep it structured and ready for implementation.
+
+## Backend – 1. časť (B1–B5, B7–B11, B14)
+
+> Implement the Python backend service for the mortgage calculator.
+> 1. Create a backend/ folder with a Python project structure (e.g., FastAPI app or module).
+> 2. Move the exact annuity and payment calculation logic from our previous JavaScript implementation into Python.
+> 3. Write unit tests in Python to verify that calculations (including 0% interest and rounding) match our reference values.
+> 4. Expose an endpoint (e.g., POST /calculate) that accepts loan parameters and returns the monthly payment, total amount, and interest.
