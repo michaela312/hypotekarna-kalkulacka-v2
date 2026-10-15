@@ -25,6 +25,7 @@ Dokumenty v `docs/v1/` a `docs/v2/` sa spracúvajú v číselnom poradí. Na kon
 
 ## Kód
 - `backend/` – Python backend V2 (FastAPI). Testy: `backend/.venv/Scripts/python.exe -m pytest` z priečinka `backend/`. Postup v `backend/README.md`.
+- `supabase/migrations/` – SQL migrácie. Nastavenie Supabase a premenných prostredia v `README.md`.
 
 ## Konvencie
 - Nikdy necommitovať tajné údaje ani súbory `.env`.

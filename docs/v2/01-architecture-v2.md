@@ -395,7 +395,7 @@ Prečo nie samostatné tabuľky pre vstupy, výsledky a históriu:
 | `user_history` | Používatelia neexistujú (OQ-V2-01, návrh: spoločný zoznam). Pridá sa pri EP-V2-03. |
 | `calculation_extra_payments` | V2 má najviac 1 mimoriadnu splátku. Pridá sa pri EP-V2-01. |
 
-SQL migrácie `backend/db/migrations/001_calculations.sql` (S1) je v `02-architecture.md`, časť Data Model → V Supabase. Do súboru sa skopíruje bez zmeny.
+SQL migrácia je v `supabase/migrations/20261015120000_create_calculations.sql` (S1). Zhoduje sa so SQL v `02-architecture.md`, časť Data Model → V Supabase.
 
 ### 4.2 Mapovanie stĺpcov
 
@@ -451,7 +451,7 @@ class SupabaseRepository:
 | # | Krok | Overenie |
 |---|------|----------|
 | 1 | Na supabase.com vytvoriť projekt, región `eu-central-1` (Frankfurt). | Projekt má stav „Active“. |
-| 2 | V SQL Editore spustiť `001_calculations.sql`. | V Table Editore je tabuľka `calculations` so 17 stĺpcami a značkou RLS enabled. |
+| 2 | V SQL Editore spustiť `supabase/migrations/20261015120000_create_calculations.sql`. | V Table Editore je tabuľka `calculations` so 17 stĺpcami a značkou RLS enabled. |
 | 3 | Settings → API: skopírovať Project URL a `service_role` kľúč do `backend/.env`. | `git status` neukazuje `.env` (NFR-V2-06). |
 | 4 | Spustiť `uvicorn app.main:app` a uložiť 1 výpočet. | V tabuľke je 1 riadok s `monthly_payment = 477.42` (príklad FR-10). |
 | 5 | Overiť, že anon kľúč nemá prístup: `GET <url>/rest/v1/calculations` s anon kľúčom. | Odpoveď je `[]` (RLS bez politík, AD-V2-06). |

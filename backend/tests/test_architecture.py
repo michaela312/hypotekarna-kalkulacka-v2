@@ -26,6 +26,20 @@ def test_jadro_bez_frameworku(path):
     assert bad == set()
 
 
+ALL = sorted(APP.rglob('*.py'))
+
+
+@pytest.mark.parametrize('path', ALL, ids=lambda p: str(p.relative_to(APP)))
+def test_supabase_a_prostredie_iba_v_povolenych_moduloch(path):
+    """Pravidlo 4, NFR-V2-06: iba app/db/supabase_*.py importuje supabase, iba B15 číta prostredie."""
+    names = imports(path)
+    if not (path.parent.name == 'db' and path.name.startswith('supabase_')):
+        assert not any(n == 'supabase' or n.startswith('supabase.') for n in names)
+    if path.name != 'config.py':
+        assert not {'os', 'dotenv'} & names
+        assert 'environ' not in path.read_text(encoding='utf-8')
+
+
 @pytest.mark.parametrize('path', ['input/parse.py', 'input/limits.py', 'domain/mortgage.py', 'domain/rounding.py'])
 def test_zakladne_moduly_bez_importov_aplikacie(path):
     """Pravidlo 2: B1, B2, B4 a B5 neimportujú žiadny modul aplikácie."""

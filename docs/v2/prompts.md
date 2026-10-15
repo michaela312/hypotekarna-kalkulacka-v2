@@ -29,3 +29,10 @@
 > 2. Move the exact annuity and payment calculation logic from our previous JavaScript implementation into Python.
 > 3. Write unit tests in Python to verify that calculations (including 0% interest and rounding) match our reference values.
 > 4. Expose an endpoint (e.g., POST /calculate) that accepts loan parameters and returns the monthly payment, total amount, and interest.
+
+## Supabase – schéma a pripojenie
+
+> Prepare the Supabase integration and database schema:
+> 1. Create a supabase/ folder with migration SQL files (e.g., schema.sql) defining a calculations table to store loan parameters, results, and timestamps.
+> 2. Add a configuration / client helper file in the project for connecting to Supabase.
+> 3. Update the README with instructions on how to set up environment variables (Supabase URL and API keys).

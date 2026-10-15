@@ -25,12 +25,19 @@
   - hodnoty označené v 03 V1 ako NEOVERENÉ sú overené nezávislým výpočtom s presnosťou 60 číslic a všetky sedia;
   - TQ-01 zapracované ako `ValueError` (Python ekvivalent `RangeError`);
   - B1 navyše akceptuje nezalomiteľné medzery U+00A0 a U+202F.
+- **Hotové: príprava Supabase:**
+  - migrácia S1 `supabase/migrations/20261015120000_create_calculations.sql` (presne SQL z 02, overená parserom PostgreSQL `pglast`, proti skutočnej databáze zatiaľ nespustená);
+  - B15 `backend/app/config.py` (`STORAGE`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, chyba uvádza názov chýbajúcej premennej) a `backend/.env.example`;
+  - B13 (časť) `backend/app/db/supabase_client.py` – klient s timeoutom 4 s; zatiaľ ho nič nevolá;
+  - návod na nastavenie Supabase a premenných v `README.md`;
+  - 160 testov prechádza (nové: config, klient bez siete, NFR-V2-06, migrácia, pravidlo 4 závislostí).
+  - Zmena oproti 02: migrácia je v `supabase/migrations/` namiesto `backend/db/migrations/` (požiadavka používateľky, 02 a 01-architecture-v2 upravené).
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
 ### Ďalšie kroky V2
 1. B6 mimoriadna splátka (FR-06 až FR-09) a kľúč `extra` v B10; akceptačné testy na 8 riadkoch DR-10.
-2. B12, B13, S1 (Supabase) a endpointy FR-10, FR-11.
+2. Založiť projekt Supabase a spustiť migráciu (README). Potom B12, `supabase_repository.py` (B13), `SavedValues` v B9 a endpointy FR-10, FR-11.
 3. Rozhodnúť OQ-V2-04 až OQ-V2-06 z `01-architecture-v2.md` (text pre nedostupný výpočet, doplnenie `SavedExtra` do 02, premenovanie súboru).
 4. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
 5. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.

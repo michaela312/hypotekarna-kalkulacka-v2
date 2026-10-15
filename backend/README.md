@@ -1,7 +1,7 @@
 # Backend V2 (Python, FastAPI)
 
 Implementuje FR-01 až FR-05 V2 cez `POST /api/calculate` podľa `docs/v2/api-contract.md`.
-Moduly B1–B5, B7–B11 a B14 podľa `docs/v2/02-architecture.md`. Mimoriadna splátka (B6) a Supabase (B12, B13, S1) zatiaľ chýbajú.
+Moduly B1–B5, B7–B11 a B14 podľa `docs/v2/02-architecture.md`. Pripravené je pripojenie k Supabase (B15 `app/config.py`, B13 `app/db/supabase_client.py`) a tabuľka S1 v `supabase/migrations/`. Mimoriadna splátka (B6), úložisko (B12, `supabase_repository.py`) a endpointy FR-10, FR-11 zatiaľ chýbajú.
 
 ## Inštalácia (Windows, Python ≥ 3.12)
 
@@ -13,6 +13,14 @@ python -m venv .venv
 ```
 
 Ak `python` nie je v PATH, použite plnú cestu, napr. `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`.
+
+## Premenné prostredia
+
+```bash
+cp .env.example .env
+```
+
+Hodnoty `SUPABASE_URL` a `SUPABASE_SERVICE_ROLE_KEY` doplňte podľa časti „Nastavenie Supabase“ v `README.md` v koreni projektu. Testy `.env` nepotrebujú a k Supabase sa nepripájajú.
 
 ## Testy
 

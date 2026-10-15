@@ -47,11 +47,13 @@ backend/
   app/api/schemas.py              B10 – API kontrakt v kóde                         NOVÉ
   app/api/routes.py               B11 – endpointy                                   NOVÉ
   app/db/repository.py            B12 – rozhranie úložiska a pamäťová implementácia NOVÉ
+  app/db/supabase_client.py       B13 – vytvorenie klienta Supabase (timeout 4 s)   NOVÉ
   app/db/supabase_repository.py   B13 – implementácia úložiska nad Supabase         NOVÉ
-  db/migrations/001_calculations.sql  S1 – tabuľka a RLS v Supabase                 NOVÉ
   tests/                          zrkadlí app/; každý test uvádza ID požiadavky
   requirements.txt, requirements-dev.txt
   .env.example                    názvy premenných bez hodnôt (NFR-V2-06)
+
+supabase/migrations/               S1 – SQL migrácie (`20261015120000_create_calculations.sql`)
 
 e2e/                              testy Playwright (F1 až F5 cez prehliadač)
 docs/
@@ -212,9 +214,9 @@ Pri moduloch prevzatých z V1 sa uvádza iba rozdiel. Ostatné platí podľa `do
 - **Rozhranie:** `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `STORAGE` (`supabase` | `memory`, predvolene `supabase`). Ak pri `STORAGE=supabase` chýba URL alebo kľúč, aplikácia sa nespustí a vypíše názov chýbajúcej premennej.
 - **Implementuje:** NFR-V2-06.
 
-#### S1 `db/migrations/001_calculations.sql` – tabuľka (NOVÉ)
+#### S1 `supabase/migrations/20261015120000_create_calculations.sql` – tabuľka (NOVÉ)
 - **Jednou vetou:** Vytvorí v Supabase tabuľku `calculations` a zapne RLS.
-- **Spustenie:** ručne v Supabase SQL Editore, raz. Postup bude v README.
+- **Spustenie:** ručne v Supabase SQL Editore alebo `supabase db push`, raz. Postup je v `README.md`.
 - **Implementuje:** FR-10, FR-11, AD-V2-06.
 
 ### Frontend (bez výpočtu, NFR-V2-05)
@@ -306,7 +308,7 @@ Pravidlá:
 1. B1 až B9 neimportujú `fastapi`, `supabase`, `pydantic` ani `app.api` a `app.db` (NFR-V2-03).
 2. B4, B5 a B1 neimportujú žiadny modul aplikácie. B6 importuje iba B4.
 3. B11 nevytvára úložisko, dostane ho cez `Depends` (AD-V2-09).
-4. Iba B13 importuje `supabase`. Iba B15 číta premenné prostredia.
+4. Iba B13 (`app/db/supabase_*.py`) importuje `supabase`. Iba B15 číta premenné prostredia.
 5. Frontend importuje iba súbory z `frontend/js/`. Iba F5 volá `fetch()`. Iba F4 používa `document`.
 6. Cyklické závislosti nie sú povolené.
 7. Pravidlá 1, 2, 4 a 5 overí test, ktorý prehľadá importy v `backend/app/` a výskyty `fetch(` a `document` vo `frontend/js/`.
