@@ -33,6 +33,8 @@ Všetko beží lokálne na `http://127.0.0.1:8000/` jedným príkazom (NFR-V2-08
 
 ### 1.2 Súbory a zodpovednosti
 
+**Zmena (AD-V2-13):** frontend je jeden súbor `frontend/index.html`. Tabuľka nižšie platí pre oddiely v ňom, nie pre samostatné súbory. Atribúty a stavy pre mimoriadnu splátku a ukladanie (1.3, 1.4) pribudnú s B6, FR-10 a FR-11.
+
 | Modul | Súbor | Robí | Nesmie |
 |-------|-------|------|--------|
 | F1 | `frontend/index.html` | Markup formulára, výsledkov, tlačidla a zoznamu | Obsahovať inline JS |
@@ -488,6 +490,6 @@ Presné kroky, verzie závislostí a commity určí `05-plan.md`. Odporúčané 
 
 | ID | Bod | Návrh |
 |----|-----|-------|
-| OQ-V2-04 | Text pre stav `unavailable` pri výpočte (1.4) chýba vo FR. | „Výpočet je dočasne nedostupný. Skúste to znova.“ Doplniť do FR-05 V2 v review (04). |
+| OQ-V2-04 | Text pre stav `unavailable` pri výpočte (1.4) chýba vo FR. | **Rozhodnuté (2026-10-15):** „Výpočet je dočasne nedostupný. Skúste to znova.“ s tlačidlom „Skúsiť znova“, výsledky sa skryjú. Doplniť do FR-05 V2 v review (04). |
 | OQ-V2-05 | `SavedExtra` a `SavedRecord` (3.2) chýbajú v `02-architecture.md`. | Prevziať do Data Model v `02-architecture.md` v review (04). |
 | OQ-V2-06 | Číslo `01` v názve tohto súboru sa prekrýva s `01-functional.md`. | Pri review (04) premenovať, napr. na `02a-tiers.md`, aby sedelo číselné poradie spracovania. |

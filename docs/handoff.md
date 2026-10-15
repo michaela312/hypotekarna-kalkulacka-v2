@@ -32,16 +32,22 @@
   - návod na nastavenie Supabase a premenných v `README.md`;
   - 160 testov prechádza (nové: config, klient bez siete, NFR-V2-06, migrácia, pravidlo 4 závislostí).
   - Zmena oproti 02: migrácia je v `supabase/migrations/` namiesto `backend/db/migrations/` (požiadavka používateľky, 02 a 01-architecture-v2 upravené).
+- **Hotové: frontend V2, 1. časť** – `frontend/index.html` (jeden súbor, AD-V2-13), FR-01 až FR-05:
+  - rozhodnutia používateľky: jeden HTML súbor, čistý minimalistický vzhľad (svetlý aj tmavý režim, mobil), výpočet 300 ms po písaní, pri nedostupnom backende správa a „Skúsiť znova“ (OQ-V2-04), zatiaľ iba základný výpočet;
+  - overené v prehliadači: predvyplnené hodnoty, 2 chyby naraz, 6 rýchlych zmien = 1 požiadavka, staršia odpoveď sa zahodí, chyba siete, timeout 5 s, obnovenie, 375 px bez vodorovného posunu;
+  - 8 statických testov v `backend/tests/test_frontend.py` (spolu 168 testov); Playwright e2e zatiaľ nie sú;
+  - `.claude/launch.json` spúšťa backend na porte 8000 pre náhľad v prehliadači.
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
 ### Ďalšie kroky V2
 1. B6 mimoriadna splátka (FR-06 až FR-09) a kľúč `extra` v B10; akceptačné testy na 8 riadkoch DR-10.
 2. Založiť projekt Supabase a spustiť migráciu (README). Potom B12, `supabase_repository.py` (B13), `SavedValues` v B9 a endpointy FR-10, FR-11.
-3. Rozhodnúť OQ-V2-04 až OQ-V2-06 z `01-architecture-v2.md` (text pre nedostupný výpočet, doplnenie `SavedExtra` do 02, premenovanie súboru).
-4. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
-5. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
-6. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
+3. Frontend: polia mimoriadnej splátky, tlačidlo „Uložiť výpočet“ a zoznam (po B6, FR-10, FR-11) a Playwright e2e testy.
+4. Rozhodnúť OQ-V2-05 a OQ-V2-06 z `01-architecture-v2.md` (doplnenie `SavedExtra` do 02, premenovanie súboru); OQ-V2-04 je rozhodnutá.
+5. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
+6. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
+7. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
 
 ---
 

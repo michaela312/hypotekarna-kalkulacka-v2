@@ -25,11 +25,8 @@ Závislosti backendu (`backend/requirements.txt`): `fastapi`, `uvicorn`, `supaba
 
 ```
 frontend/
-  index.html                      F1 – markup formulára, výsledkov a zoznamu
-  styles.css                      F2 – vzhľad
-  js/main.js                      F3 – vstupný bod: debounce a prepojenie F4 a F5
-  js/view.js                      F4 – DOM adaptér: čítanie formulára a vykreslenie
-  js/api.js                       F5 – jediné miesto s volaním fetch()
+  index.html                      F1–F5 v jednom súbore (AD-V2-13): markup, <style>, <script type="module">
+                                  s oddielmi F5 API klient, F4 DOM adaptér, F3 riadenie
 
 backend/
   app/main.py                     B14 – vytvorenie aplikácie FastAPI, prepojenie, servírovanie frontend/
@@ -309,7 +306,7 @@ Pravidlá:
 2. B4, B5 a B1 neimportujú žiadny modul aplikácie. B6 importuje iba B4.
 3. B11 nevytvára úložisko, dostane ho cez `Depends` (AD-V2-09).
 4. Iba B13 (`app/db/supabase_*.py`) importuje `supabase`. Iba B15 číta premenné prostredia.
-5. Frontend importuje iba súbory z `frontend/js/`. Iba F5 volá `fetch()`. Iba F4 používa `document`.
+5. Frontend je jeden súbor bez importov a externých zdrojov (AD-V2-13). V skripte je `fetch()` iba v oddiele F5. Overuje `backend/tests/test_frontend.py`.
 6. Cyklické závislosti nie sú povolené.
 7. Pravidlá 1, 2, 4 a 5 overí test, ktorý prehľadá importy v `backend/app/` a výskyty `fetch(` a `document` vo `frontend/js/`.
 
@@ -447,6 +444,7 @@ Nahrádzajú NFR-01 až NFR-03 z V1. NFR-04 V1 platí ďalej ako súčasť NFR-V
 | AD-V2-10 | Zaokrúhľuje sa cez `Decimal(repr(x))` a `ROUND_HALF_UP`. | `repr` dáva najkratší zápis floatu rovnako ako JavaScript v V1, takže `1.005` → `1.01`. `round()` v Pythone zaokrúhľuje na párne číslo. |
 | AD-V2-11 | Zostatok sa počas splácania nezaokrúhľuje (DR-03 platí aj pre DR-05). | Rovnaké pravidlo ako vo V1. Kompromis: výsledky sa môžu od banky líšiť o niekoľko centov (poznámka v časti 5 `01-functional.md`). |
 | AD-V2-12 | Backend overí výpočet znova aj pri ukladaní a neverí výsledkom z frontendu. | Do databázy sa nedostane výsledok, ktorý backend nevypočítal. |
+| AD-V2-13 | **Mení štruktúru F1–F5:** frontend je jeden súbor `frontend/index.html` s vloženým CSS a JS. F1 až F5 sú oddiely v ňom, nie samostatné súbory. | Rozhodnutie používateľky (2026-10-15). Jeden súbor sa ľahko prečíta a nič nenačítava. Kompromis: oddelenie F3/F4/F5 drží iba poradie a komentáre v skripte, nie hranice modulov; pravidlo 5 overuje statický test. |
 
 ### Riziká
 

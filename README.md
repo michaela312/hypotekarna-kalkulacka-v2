@@ -1,7 +1,17 @@
 # Hypotekárna kalkulačka v2
 
 Hypotekárna kalkulačka so 4 časťami: frontend (HTML + JS), API, backend (Python, FastAPI) a databáza Supabase.
-Plán V2 je v `docs/v2/`. Hotový je výpočet FR-01 až FR-05 v backende a príprava Supabase (tabuľka a pripojenie).
+Plán V2 je v `docs/v2/`. Hotový je základný výpočet (FR-01 až FR-05) v backende aj vo frontende a príprava Supabase (tabuľka a pripojenie).
+
+## Spustenie
+
+Z priečinka `backend/` (inštalácia v `backend/README.md`):
+
+```bash
+.venv/Scripts/python.exe -m uvicorn app.main:app
+```
+
+Potom otvorte http://127.0.0.1:8000/. Súbor `frontend/index.html` nefunguje otvorený priamo z disku, lebo volá API na tom istom serveri.
 
 ## Štruktúra
 
@@ -9,6 +19,7 @@ Plán V2 je v `docs/v2/`. Hotový je výpočet FR-01 až FR-05 v backende a prí
 - `docs/handoff.md` – aktuálny stav a ďalšie kroky
 - `docs/v1/` – plánovacie dokumenty V1 (01 až 06, `prompts.md`)
 - `docs/v2/` – plán V2: `01-functional.md`, `01-architecture-v2.md`, `02-architecture.md`, `api-contract.md`, `prompts.md`
+- `frontend/index.html` – frontend v jednom súbore (HTML, CSS, JavaScript, bez závislostí)
 - `backend/` – Python backend (FastAPI), návod v `backend/README.md`
 - `supabase/migrations/` – SQL migrácie databázy
 

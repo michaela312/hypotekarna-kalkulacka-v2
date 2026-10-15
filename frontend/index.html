@@ -1,0 +1,245 @@
+<!doctype html>
+<!--
+  Frontend V2 – jeden súbor (F1 markup, F2 vzhľad, F3 riadenie, F4 DOM, F5 API klient).
+  Implementuje FR-01 až FR-05 (zobrazenie), NFR-V2-01, NFR-V2-04, NFR-V2-05, API-R1, API-R3, API-R4, API-R7.
+  Nič nepočíta, nevaliduje ani neformátuje: posiela surové texty na POST /api/calculate a zobrazí hotové texty.
+  Spustenie: z priečinka backend/ príkaz `uvicorn app.main:app` a otvoriť http://127.0.0.1:8000/
+-->
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hypotekárna kalkulačka</title>
+  <!-- F2 – vzhľad -->
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --surface: #ffffff;
+      --text: #1b1d21;
+      --muted: #5c6370;
+      --border: #d5d9e0;
+      --accent: #1f5fbf;
+      --accent-soft: #e8f0fc;
+      --error: #b42318;
+      --error-soft: #fdecea;
+      --focus: #1f5fbf;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15171b;
+        --surface: #1e2127;
+        --text: #e8eaee;
+        --muted: #a2a9b5;
+        --border: #3a3f48;
+        --accent: #7fb0ff;
+        --accent-soft: #1d2a40;
+        --error: #ff8a80;
+        --error-soft: #3a1f1e;
+        --focus: #7fb0ff;
+        color-scheme: dark;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 32px 16px;
+    }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 24px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card + .card { margin-top: 16px; }
+
+    .field + .field { margin-top: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    input:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    input[aria-invalid="true"] { border-color: var(--error); background: var(--error-soft); }
+    .error { color: var(--error); font-size: 0.875rem; margin: 4px 0 0; }
+    .error:empty { display: none; }
+
+    .results { margin: 0; }
+    .results div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; }
+    .results div + div { border-top: 1px solid var(--border); }
+    .results dt { color: var(--muted); }
+    .results dd { margin: 0; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }  /* FR-04 */
+    .results .main { flex-direction: column; gap: 0; padding: 0 0 12px; }
+    .results .main dd { font-size: 2rem; color: var(--accent); }
+
+    .banner {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: var(--error-soft); color: var(--error);
+      border-radius: 12px; padding: 12px 16px; margin-top: 16px;
+    }
+    .banner button {
+      font: inherit; font-weight: 600; cursor: pointer;
+      color: var(--accent); background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;
+    }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Hypotekárna kalkulačka</h1>
+    <p class="lead">Koľko budete platiť mesačne a koľko spolu.</p>
+
+    <!-- F1 – markup. Polia sú type="text", aby sa na API poslal presne zadaný text (AD-03 V1, API-R3). -->
+    <form class="card" data-form novalidate>
+      <div class="field">
+        <label for="amount">Výška úveru (€)</label>
+        <input id="amount" data-field="amount" type="text" inputmode="decimal" autocomplete="off" value="100 000">
+        <p class="error" id="amount-error" data-error="amount"></p>
+      </div>
+      <div class="field">
+        <label for="rate">Ročná úroková sadzba (%)</label>
+        <input id="rate" data-field="rate" type="text" inputmode="decimal" autocomplete="off" value="4">
+        <p class="error" id="rate-error" data-error="rate"></p>
+      </div>
+      <div class="field">
+        <label for="years">Doba splácania (roky)</label>
+        <input id="years" data-field="years" type="text" inputmode="numeric" autocomplete="off" value="30">
+        <p class="error" id="years-error" data-error="years"></p>
+      </div>
+    </form>
+
+    <section class="card" data-results aria-live="polite" aria-label="Výsledok" hidden>
+      <dl class="results">
+        <div class="main"><dt>Mesačná splátka</dt><dd data-result="monthly"></dd></div>
+        <div><dt>Celkom zaplatíte</dt><dd data-result="total"></dd></div>
+        <div><dt>Z toho úrok</dt><dd data-result="interest"></dd></div>
+      </dl>
+    </section>
+
+    <div class="banner" data-unavailable role="alert" hidden>
+      <span>Výpočet je dočasne nedostupný. Skúste to znova.</span>
+      <button type="button" data-action="retry">Skúsiť znova</button>
+    </div>
+
+    <noscript><p class="banner">Kalkulačka potrebuje zapnutý JavaScript.</p></noscript>
+  </main>
+
+  <script type="module">
+    // ---------------------------------------------------------------------------
+    // F5 – API klient (API-R1, API-R7). Jediné miesto s fetch(). Nikdy nevyhodí výnimku.
+    // ---------------------------------------------------------------------------
+    const TIMEOUT_MS = 5000;
+
+    /** @returns {Promise<object>} CalculationResponse alebo { error: 'timeout' | 'network' | 'http' } */
+    async function calculate(request) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      try {
+        const response = await fetch('/api/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request),
+          signal: controller.signal,
+        });
+        if (response.ok) return await response.json();
+        // 422 = porušenie kontraktu (API-R6), chyba vo frontende. Používateľ vidí iba všeobecnú správu.
+        console.error(`POST /api/calculate vrátil ${response.status}:`, await response.text());
+        return { error: 'http' };
+      } catch (err) {
+        return { error: err.name === 'AbortError' ? 'timeout' : 'network' };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // F4 – DOM adaptér (FR-05, NFR-V2-04). Nič nepočíta ani neformátuje (API-R4).
+    // ---------------------------------------------------------------------------
+    const FIELDS = ['amount', 'rate', 'years'];
+    const form = document.querySelector('[data-form]');
+    const results = document.querySelector('[data-results]');
+    const unavailable = document.querySelector('[data-unavailable]');
+    const field = (name) => form.querySelector(`[data-field="${name}"]`);
+    const errorEl = (name) => form.querySelector(`[data-error="${name}"]`);
+
+    function readForm() {
+      return Object.fromEntries(FIELDS.map((name) => [name, field(name).value]));
+    }
+
+    function showErrors(errors) {
+      for (const name of FIELDS) {
+        const message = errors[name] ?? '';
+        errorEl(name).textContent = message;
+        if (message) {
+          field(name).setAttribute('aria-invalid', 'true');
+          field(name).setAttribute('aria-describedby', errorEl(name).id);
+        } else {
+          field(name).removeAttribute('aria-invalid');
+          field(name).removeAttribute('aria-describedby');
+        }
+      }
+    }
+
+    function render(response) {
+      if (response.status === 'ok') {
+        for (const key of ['monthly', 'total', 'interest']) {
+          results.querySelector(`[data-result="${key}"]`).textContent = response.results[key];
+        }
+        showErrors({});
+        results.hidden = false;
+        unavailable.hidden = true;
+      } else if (response.status === 'invalid') {
+        // FR-05: pri neplatnom vstupe sa nezobrazí žiadny výsledok.
+        showErrors(response.errors);
+        results.hidden = true;
+        unavailable.hidden = true;
+      } else {
+        // Backend neodpovedá, odpoveď neprišla do 5 s alebo porušenie kontraktu (OQ-V2-04).
+        showErrors({});
+        results.hidden = true;
+        unavailable.hidden = false;
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // F3 – riadenie: debounce 300 ms (AD-V2-02, NFR-V2-01), zobrazí sa iba posledná odpoveď (R-V2-04).
+    // ---------------------------------------------------------------------------
+    const DEBOUNCE_MS = 300;
+    let timer;
+    let lastRequest = 0;
+
+    async function update() {
+      const id = ++lastRequest;
+      const response = await calculate(readForm());
+      if (id === lastRequest) render(response);  // staršie odpovede, ktoré prišli neskôr, sa zahodia
+    }
+
+    function schedule(delay) {
+      clearTimeout(timer);
+      timer = setTimeout(update, delay);
+    }
+
+    form.addEventListener('input', () => schedule(DEBOUNCE_MS));
+    form.addEventListener('submit', (event) => { event.preventDefault(); schedule(0); });  // Enter v poli
+    unavailable.querySelector('[data-action="retry"]').addEventListener('click', () => schedule(0));
+    schedule(0);  // predvyplnené hodnoty sa vypočítajú hneď po načítaní (AD-08 V1)
+  </script>
+</body>
+</html>

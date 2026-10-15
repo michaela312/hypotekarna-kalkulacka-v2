@@ -36,3 +36,9 @@
 > 1. Create a supabase/ folder with migration SQL files (e.g., schema.sql) defining a calculations table to store loan parameters, results, and timestamps.
 > 2. Add a configuration / client helper file in the project for connecting to Supabase.
 > 3. Update the README with instructions on how to set up environment variables (Supabase URL and API keys).
+
+## Frontend – 1. časť
+
+> I want to create the Frontend (JavaScript + HTML) for the mortgage calculator to complete our 4-tier architecture. Before writing any code, please ask me a few quick questions about how I want it structured (e.g., simple single HTML file, styling preferences, or how it should handle errors), and then wait for my answers.
+
+Odpovede na 4 otázky: štruktúra – jeden HTML súbor; vzhľad – čistý, minimalistický; výpočet a chyby – živý výpočet a správa pri nedostupnom backende; rozsah – iba základný výpočet.
