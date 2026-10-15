@@ -12,3 +12,12 @@
 > ano
 
 (Odpoveď na otázku, či spísať návrh do `docs/v2/02-architecture.md` a začať `docs/v2/01-functional.md` s požiadavkami na mimoriadnu splátku.)
+
+## 01-architecture-v2 – Implementačný pohľad po 4 vrstvách
+
+> We are moving to a 4-tier architecture for the mortgage calculator. Create a new document docs/v2/01-architecture-v2.md detailing:
+> 1. Frontend (JavaScript): handling inputs, UI rendering, fetching from API.
+> 2. API Contract: JSON request/response structure between frontend and backend.
+> 3. Backend (Python): FastAPI or lightweight service performing the mortgage and extra payment calculations.
+> 4. Supabase: Database schema (tables for calculations, user history, or inputs) and connection setup.
+> Keep it structured and ready for implementation.

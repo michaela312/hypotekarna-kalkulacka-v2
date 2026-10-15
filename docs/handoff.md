@@ -16,12 +16,14 @@
   - pravidlá závislostí, dátový model a SQL tabuľky `calculations`;
   - NFR-V2-01 až NFR-V2-08, rozhodnutia AD-V2-01 až AD-V2-12 a riziká R-V2-01 až R-V2-05.
 - Hotové: `docs/v2/api-contract.md` – endpointy `POST /api/calculate`, `POST /api/calculations`, `GET /api/calculations` a `GET /api/health`, pravidlá API-R1 až API-R7.
+- Hotové: `docs/v2/01-architecture-v2.md` – implementačný pohľad po 4 vrstvách (frontend, API, backend, Supabase): atribúty DOM a stavy UI, kompletné JSON príklady vrátane 422, kostra Pydantic modelov B10, endpointy B11, pripojenie Supabase s timeoutom 4 s, mapovanie 17 stĺpcov, postup založenia projektu. Nové otvorené body OQ-V2-04 až OQ-V2-06.
 - Oproti prvému návrhu v chate je jeden endpoint pre výpočet aj mimoriadnu splátku namiesto dvoch (AD-V2-04).
 
 ### Ďalšie kroky V2
-1. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
-2. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
-3. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
+1. Rozhodnúť OQ-V2-04 až OQ-V2-06 z `01-architecture-v2.md` (text pre nedostupný výpočet, doplnenie `SavedExtra` do 02, premenovanie súboru).
+2. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
+3. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
+4. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
 
 ---
 
