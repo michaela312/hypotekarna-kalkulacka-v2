@@ -30,7 +30,7 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 | 7 | 4. Supabase (kód) | hotové |
 | 9 | 1. Frontend | hotové |
 | 10 | 1. Frontend | hotové |
-| 11 | e2e (1 + 2 + 3) | čaká |
+| 11 | e2e (1 + 2 + 3) | hotové |
 | 12 | 4. Supabase naživo | čaká na používateľku |
 | 13 | uzavretie | čaká |
 

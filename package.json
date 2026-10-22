@@ -1,0 +1,11 @@
+{
+  "name": "hypotekarna-kalkulacka-v2-e2e",
+  "private": true,
+  "description": "Iba e2e testy (Playwright). Aplikácia nemá žiadne npm závislosti za behu (NFR-V2-05).",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0"
+  }
+}

@@ -19,6 +19,22 @@ STORAGE=memory .venv/Scripts/python.exe -m uvicorn app.main:app
 
 Potom otvorte http://127.0.0.1:8000/. Súbor `frontend/index.html` nefunguje otvorený priamo z disku, lebo volá API na tom istom serveri.
 
+## Testy
+
+Backend (z priečinka `backend/`, bez Supabase a bez internetu):
+
+```bash
+.venv/Scripts/python.exe -m pytest
+```
+
+E2E testy v prehliadači (z koreňa repozitára, potrebujú Node.js ≥ 22 a nainštalovaný backend). Playwright sám spustí backend s `STORAGE=memory` na porte 8001:
+
+```bash
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
 ## Štruktúra
 
 - `CLAUDE.md` – pravidlá projektu
@@ -28,6 +44,7 @@ Potom otvorte http://127.0.0.1:8000/. Súbor `frontend/index.html` nefunguje otv
 - `frontend/index.html` – frontend v jednom súbore (HTML, CSS, JavaScript, bez závislostí)
 - `backend/` – Python backend (FastAPI), návod v `backend/README.md`
 - `supabase/migrations/` – SQL migrácie databázy
+- `e2e/`, `playwright.config.js`, `package.json` – e2e testy (Playwright); aplikácia sama nemá žiadne npm závislosti
 
 ## Nastavenie Supabase
 

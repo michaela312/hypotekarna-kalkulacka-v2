@@ -53,7 +53,7 @@ def test_dr10_nizsia_splatka(row, expected):
 
 
 def test_dr06_dr07_priklad_fr06_nezaokruhleny():
-    """DR-07: posledná splátka 325,3178… a m = 288 po mesiaci 12."""
+    """DR-06, DR-07: B'_12 = B_12 − E; posledná splátka 325,3178… a m = 288 po mesiaci 12."""
     result = run((100_000, 4, 30, 12, 10_000), 'shorter_term')
     assert result.last_payment == pytest.approx(325.3178, abs=1e-4)
     assert result.payments - 12 == 288
