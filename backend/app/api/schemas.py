@@ -1,14 +1,15 @@
 """B10 – API kontrakt v kóde (docs/v2/api-contract.md).
 
-Implementuje API-R1 až API-R6 pre POST /api/calculate (FR-01 až FR-05).
-Mimoriadna splátka (kľúč `extra` v požiadavke, FR-06 až FR-09) pribudne s modulom B6.
+Implementuje API-R1 až API-R6 pre POST /api/calculate (FR-01 až FR-09).
+Každá zmena tohto súboru musí byť aj v api-contract.md (D-V2-07).
 """
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 
-FieldKey = Literal['amount', 'rate', 'years']
+Mode = Literal['shorter_term', 'lower_payment']                              # IN-06
+FieldKey = Literal['amount', 'rate', 'years', 'extraMonth', 'extraAmount']
 
 
 class ApiModel(BaseModel):
@@ -16,11 +17,36 @@ class ApiModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra='forbid')
 
 
+class ExtraInput(ApiModel):
+    # Surové texty z formulára (API-R3). Obe prázdne = bez mimoriadnej splátky (FR-09).
+    month: str    # IN-04
+    amount: str   # IN-05
+    mode: Mode    # IN-06, iná hodnota → 422 (API-R6)
+
+
 class CalculationRequest(ApiModel):
-    # Surové texty z formulára (API-R3).
-    amount: str  # IN-01
-    rate: str    # IN-02
-    years: str   # IN-03
+    # Surové texty z formulára (API-R3). Všetky kľúče sú povinné, aj keď je pole prázdne.
+    amount: str   # IN-01
+    rate: str     # IN-02
+    years: str    # IN-03
+    extra: ExtraInput
+
+
+class ShorterTermResult(ApiModel):                                           # FR-06, FR-08
+    mode: Literal['shorter_term']
+    payments: str
+    last_payment: str
+    total: str
+    interest: str
+    interest_saved: str
+
+
+class LowerPaymentResult(ApiModel):                                          # FR-07, FR-08
+    mode: Literal['lower_payment']
+    new_monthly: str
+    total: str
+    interest: str
+    interest_saved: str
 
 
 class Results(ApiModel):
@@ -28,7 +54,7 @@ class Results(ApiModel):
     monthly: str      # FR-01
     total: str        # FR-02
     interest: str     # FR-03
-    extra: None = None  # FR-06 až FR-08, zatiaľ vždy null
+    extra: ShorterTermResult | LowerPaymentResult | None   # None = IN-04 aj IN-05 prázdne
 
 
 class OkResponse(ApiModel):
@@ -38,7 +64,7 @@ class OkResponse(ApiModel):
 
 class InvalidResponse(ApiModel):
     status: Literal['invalid']
-    errors: dict[FieldKey, str]  # FR-05
+    errors: dict[FieldKey, str]  # FR-05, FR-09
 
 
 CalculationResponse = OkResponse | InvalidResponse

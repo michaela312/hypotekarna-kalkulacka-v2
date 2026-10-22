@@ -9,10 +9,12 @@ from app.main import app
 
 client = TestClient(app)
 
+NO_EXTRA = {'extra': {'month': '', 'amount': '', 'mode': 'shorter_term'}}
+
 
 def test_api_vypocet_referencny_priklad():
     """FR-01 až FR-04, API-R4: hotové texty, extra = null."""
-    response = client.post('/api/calculate', json={'amount': '100 000', 'rate': '4', 'years': '30'})
+    response = client.post('/api/calculate', json={'amount': '100 000', 'rate': '4', 'years': '30', **NO_EXTRA})
     assert response.status_code == 200
     assert response.json() == {
         'status': 'ok',
@@ -22,7 +24,7 @@ def test_api_vypocet_referencny_priklad():
 
 def test_api_neplatny_vstup_je_200():
     """FR-05, API-R5: neplatný vstup je HTTP 200 so status 'invalid' a bez results."""
-    response = client.post('/api/calculate', json={'amount': '100000', 'rate': '', 'years': '2,5'})
+    response = client.post('/api/calculate', json={'amount': '100000', 'rate': '', 'years': '2,5', **NO_EXTRA})
     assert response.status_code == 200
     assert response.json() == {
         'status': 'invalid',
@@ -35,8 +37,8 @@ def test_api_neplatny_vstup_je_200():
 
 @pytest.mark.parametrize('body', [
     pytest.param({'amount': '100000', 'rate': '4'}, id='chyba_kluc'),
-    pytest.param({'amount': 100000, 'rate': '4', 'years': '30'}, id='cislo_namiesto_textu API-R3'),
-    pytest.param({'amount': '100000', 'rate': '4', 'years': '30', 'foo': '1'}, id='neznamy_kluc'),
+    pytest.param({'amount': 100000, 'rate': '4', 'years': '30', **NO_EXTRA}, id='cislo_namiesto_textu API-R3'),
+    pytest.param({'amount': '100000', 'rate': '4', 'years': '30', 'foo': '1', **NO_EXTRA}, id='neznamy_kluc'),
 ])
 def test_api_porusenie_kontraktu_je_422(body):
     """API-R6"""
@@ -51,8 +53,9 @@ def test_api_health():
 
 
 def test_api_cas_odpovede():
-    """NFR-V2-02: medián zo 100 volaní ≤ 50 ms."""
-    body = {'amount': '1 000 000', 'rate': '20', 'years': '30'}
+    """NFR-V2-02: medián zo 100 volaní ≤ 50 ms, s mimoriadnou splátkou v mesiaci 1 pri 30 rokoch."""
+    body = {'amount': '1 000 000', 'rate': '20', 'years': '30',
+            'extra': {'month': '1', 'amount': '100', 'mode': 'shorter_term'}}
     durations = []
     for _ in range(100):
         start = time.perf_counter()
@@ -63,7 +66,7 @@ def test_api_cas_odpovede():
 
 # --- Automatické uloženie (FR-10, AD-V2-14) -----------------------------------------------------
 
-VALID = {'amount': '100 000', 'rate': '4', 'years': '30'}
+VALID = {'amount': '100 000', 'rate': '4', 'years': '30', **NO_EXTRA}
 
 
 def test_api_platny_vypocet_sa_ulozi(repository):
@@ -85,7 +88,7 @@ def test_api_kazdy_vypocet_je_novy_zaznam(repository):
 
 def test_api_neplatny_vstup_sa_neulozi(repository):
     """FR-05: neplatný vstup sa neukladá."""
-    client.post('/api/calculate', json={'amount': '999', 'rate': '4', 'years': '30'})
+    client.post('/api/calculate', json={'amount': '999', 'rate': '4', 'years': '30', **NO_EXTRA})
     assert repository.records == []
 
 

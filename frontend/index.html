@@ -180,7 +180,11 @@
     const errorEl = (name) => form.querySelector(`[data-error="${name}"]`);
 
     function readForm() {
-      return Object.fromEntries(FIELDS.map((name) => [name, field(name).value]));
+      // Kľúč extra je povinný (API-R6). Polia mimoriadnej splátky pribudnú vo formulári v kroku 9.
+      return {
+        ...Object.fromEntries(FIELDS.map((name) => [name, field(name).value])),
+        extra: { month: '', amount: '', mode: 'shorter_term' },
+      };
     }
 
     function showErrors(errors) {

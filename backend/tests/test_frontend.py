@@ -86,3 +86,11 @@ def test_backend_servíruje_frontend():
     assert response.status_code == 200
     assert response.headers['content-type'].startswith('text/html')
     assert '<title>Hypotekárna kalkulačka</title>' in response.text
+
+
+def test_frontend_posiela_extra():
+    """API-R6: readForm() posiela povinný kľúč extra s month, amount a mode."""
+    read_form = re.search(r'function readForm\(\) \{(.*?)\n    \}', SCRIPT, re.S).group(1)
+    assert 'extra:' in read_form
+    for key in ('month', 'amount', 'mode'):
+        assert key in read_form

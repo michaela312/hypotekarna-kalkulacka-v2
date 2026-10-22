@@ -58,6 +58,7 @@
   - krok 3: B6 `app/domain/extra_payment.py`; 8/8 riadkov DR-10 sedí na 0,01 € hneď na prvý pokus; cyklus DR-07 má strop n − K splátok (R-P-02); 24 nových testov.
   - krok 4: B7 `format_rate`, B8 `plural`, správy FR-09 (`extra_month_message`, `extra_amount_message`), `payments_text`, `years_text`, `extra_text`; 31 nových testov (302).
   - krok 5: B9 s mimoriadnou splátkou (`ExtraResult`, `SavedExtra`, správy FR-09 podľa kontextu); 8/8 DR-10 a 9 riadkov FR-09 ako akceptačné testy; 23 nových testov (325).
+  - krok 6: B10 `ExtraInput`, `ShorterTermResult`, `LowerPaymentResult`, `FieldKey` s `extraMonth`/`extraAmount`; B11 prevod chýb na camelCase; frontend posiela `extra` (zatiaľ prázdne); staré testy API doplnené o `extra`; 21 nových testov (346). V prehliadači overené (477,42 €). `.claude/launch.json` má konfiguráciu `backend-memory` (`STORAGE=memory`), lebo `backend/.env` existuje, ale `SUPABASE_SERVICE_ROLE_KEY` je prázdny.
 
 ### Ďalšie kroky V2
 1. Voliteľne review `05-plan.md` v čistej session (04 V2).

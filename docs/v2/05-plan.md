@@ -25,7 +25,8 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 | 3 | 3. Backend (jadro) | hotové |
 | 4 | 3. Backend (jadro) | hotové |
 | 5 | 3. Backend (jadro) | hotové |
-| 6, 8 | 2. API | čaká |
+| 6 | 2. API | hotové |
+| 8 | 2. API | čaká |
 | 7 | 4. Supabase (kód) | čaká |
 | 9, 10 | 1. Frontend | čaká |
 | 11 | e2e (1 + 2 + 3) | čaká |

@@ -6,6 +6,13 @@
       "runtimeExecutable": "backend/.venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--app-dir", "backend", "--port", "8000"],
       "port": 8000
+    },
+    {
+      "name": "backend-memory",
+      "runtimeExecutable": "backend/.venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app.main:app", "--app-dir", "backend", "--port", "8000"],
+      "env": { "STORAGE": "memory" },
+      "port": 8000
     }
   ]
 }
