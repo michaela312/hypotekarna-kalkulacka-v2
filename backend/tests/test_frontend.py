@@ -45,10 +45,16 @@ def test_frontend_bez_externych_zdrojov():
     assert '@import' not in HTML and 'url(' not in HTML
 
 
+def section(name: str) -> str:
+    """Kód oddielu F3, F4 alebo F5 v skripte bez komentárov (od jeho nadpisu po ďalší nadpis)."""
+    parts = re.split(r'// -{10,}\n\s*// (F\d)', SCRIPT_WITH_COMMENTS)
+    code = dict(zip(parts[1::2], parts[2::2]))[name]
+    return re.sub(r'/\*.*?\*/|//[^\n]*', '', code, flags=re.S)
+
+
 def test_frontend_iba_jedno_volanie_fetch():
-    """Pravidlo 5, API-R1: iba F5 volá fetch(), a to iba na /api/calculate."""
+    """Pravidlo 5, API-R1: v celom skripte je fetch() práve raz (vo funkcii request v F5)."""
     assert len(re.findall(r'\bfetch\(', SCRIPT)) == 1
-    assert re.findall(r"fetch\('([^']+)'", SCRIPT) == ['/api/calculate']
 
 
 def test_frontend_bez_vypoctov_a_formatovania():
@@ -147,4 +153,56 @@ def test_frontend_predvoleny_rezim():
 
 def test_frontend_zmena_rezimu_spusti_vypocet():
     """IN-06: zmena prepínača (udalosť change) naplánuje výpočet."""
-    assert re.search(r"addEventListener\('change'.*?name === 'mode'.*?schedule\(", SCRIPT, re.S)
+    assert re.search(r"addEventListener\('change'.*?name === 'mode'.*?(schedule|onEdit)\(", SCRIPT, re.S)
+
+
+# --- Krok 10: uloženie a zoznam (FR-10, FR-11) ------------------------------------------------
+
+def test_frontend_fetch_iba_v_f5():
+    """Pravidlo 5, 02a 1.2: fetch() iba v F5; F5 nepoužíva document; F3 nevolá fetch ani document."""
+    assert 'fetch(' in section('F5') and 'document' not in section('F5')
+    assert 'fetch(' not in section('F4')
+    assert 'fetch(' not in section('F3') and 'document' not in section('F3')
+
+
+def test_frontend_fetch_iba_3_cesty_api():
+    """API-R1: F5 volá presne 3 endpointy z api-contract.md."""
+    calls = set(re.findall(r"request\('(GET|POST)', '([^']+)'", section('F5')))
+    assert calls == {('POST', '/api/calculate'), ('POST', '/api/calculations'), ('GET', '/api/calculations')}
+
+
+def test_frontend_f5_prevod_chyb():
+    """02a 1.6: 503 → storage, 422 → contract + console.error, AbortError → timeout, inak network."""
+    f5 = section('F5')
+    for snippet in ("status === 503) return { error: 'storage' }", "console.error(", "error: 'contract'",
+                    "'AbortError' ? 'timeout' : 'network'"):
+        assert snippet in f5
+
+
+def test_nfr_v2_04_save_role_status():
+    """NFR-V2-04, FR-10: tlačidlo Uložiť výpočet je predvolene neaktívne, správa je v role="status"."""
+    items = elements()
+    [button] = [a for t, a in items if t == 'button' and a.get('data-action') == 'save']
+    assert 'disabled' in button
+    [status] = [a for t, a in items if a.get('data-status') == 'save']
+    assert status['role'] == 'status'
+    assert '>Uložiť výpočet</button>' in HTML
+
+
+def test_frontend_data_atributy_zoznam():
+    """02a 1.3, FR-11: telo tabuľky data-list="calculations", správa data-status="list", 6 stĺpcov."""
+    assert '<tbody data-list="calculations"></tbody>' in HTML
+    assert 'data-status="list"' in HTML
+    assert len(re.findall(r'<th>', HTML)) == 6
+
+
+def test_frontend_texty_fr10_fr11():
+    """FR-10, FR-11: texty správ presne podľa 01-functional.md."""
+    for text in ('Výpočet bol uložený.', 'Výpočet sa nepodarilo uložiť. Skúste to znova.',
+                 'Zatiaľ nie sú uložené žiadne výpočty.', 'Uložené výpočty sa nepodarilo načítať.'):
+        assert f"'{text}'" in SCRIPT
+
+
+def test_frontend_zoznam_bez_innerhtml():
+    """Bezpečnosť: texty z API sa vkladajú iba cez textContent, nie innerHTML."""
+    assert 'innerHTML' not in SCRIPT and 'insertAdjacentHTML' not in SCRIPT

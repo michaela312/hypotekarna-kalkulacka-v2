@@ -1,8 +1,8 @@
 <!doctype html>
 <!--
   Frontend V2 – jeden súbor (F1 markup, F2 vzhľad, F3 riadenie, F4 DOM, F5 API klient).
-  Implementuje FR-01 až FR-09 (zobrazenie), NFR-V2-01, NFR-V2-04, NFR-V2-05, API-R1, API-R3, API-R4, API-R7.
-  Nič nepočíta, nevaliduje ani neformátuje: posiela surové texty na POST /api/calculate a zobrazí hotové texty.
+  Implementuje FR-01 až FR-11 (zobrazenie), NFR-V2-01, NFR-V2-04, NFR-V2-05, API-R1, API-R3, API-R4, API-R7.
+  Nič nepočíta, nevaliduje ani neformátuje: posiela surové texty na API a zobrazí hotové texty.
   Spustenie: z priečinka backend/ príkaz `uvicorn app.main:app` a otvoriť http://127.0.0.1:8000/
 -->
 <html lang="sk">
@@ -116,6 +116,31 @@
     }
     [hidden] { display: none !important; }
 
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 16px 0; }
+    .primary {
+      font: inherit; font-weight: 600; cursor: pointer;
+      color: #fff; background: var(--accent); border: 0; border-radius: 8px; padding: 10px 18px;
+    }
+    @media (prefers-color-scheme: dark) { .primary { color: #0d1b30; } }
+    .primary:disabled { cursor: not-allowed; opacity: 0.45; }
+    .status { margin: 0; color: var(--muted); }
+    .status:empty { display: none; }
+    .status[data-kind="ok"] { color: var(--success); }
+    .status[data-kind="error"] { color: var(--error); }
+
+    /* FR-11: v úzkom stĺpci je každý riadok tabuľky karta; popis stĺpca je v data-label. */
+    .list table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    .list thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    .list tr { display: block; padding: 10px 0; }
+    .list tr + tr { border-top: 1px solid var(--border); }
+    .list td { display: flex; justify-content: space-between; gap: 16px; padding: 2px 0; }
+    .list td::before { content: attr(data-label); color: var(--muted); flex-shrink: 0; text-align: left; }
+    .list td[data-col="createdAt"] { font-size: 0.875rem; color: var(--muted); }
+    .list td[data-col="createdAt"]::before { content: none; }
+    .list td[data-col="monthly"] { font-weight: 600; }
+    .list td[data-col="amount"], .list td[data-col="monthly"] { white-space: nowrap; }  /* FR-04 */
+    .list td[data-col="extra"] { text-align: right; }
+
     @media (max-width: 400px) {
       .row { flex-direction: column; gap: 16px; }
       .results div { flex-wrap: wrap; gap: 0 16px; }
@@ -194,6 +219,24 @@
       <button type="button" data-action="retry">Skúsiť znova</button>
     </div>
 
+    <!-- FR-10: tlačidlo je aktívne iba pri zobrazených výsledkoch; správa v role="status" (NFR-V2-04). -->
+    <div class="actions">
+      <button type="button" class="primary" data-action="save" disabled>Uložiť výpočet</button>
+      <p class="status" data-status="save" role="status"></p>
+    </div>
+
+    <!-- FR-11: najviac 20 posledných uložených výpočtov, od najnovšieho. -->
+    <section class="card list" aria-labelledby="list-title">
+      <h2 id="list-title">Uložené výpočty</h2>
+      <p class="status" data-status="list" aria-live="polite"></p>
+      <table data-table hidden>
+        <thead>
+          <tr><th>Uložené</th><th>Výška úveru</th><th>Sadzba</th><th>Doba</th><th>Mesačná splátka</th><th>Mimoriadna splátka</th></tr>
+        </thead>
+        <tbody data-list="calculations"></tbody>
+      </table>
+    </section>
+
     <noscript><p class="banner">Kalkulačka potrebuje zapnutý JavaScript.</p></noscript>
   </main>
 
@@ -203,27 +246,35 @@
     // ---------------------------------------------------------------------------
     const TIMEOUT_MS = 5000;
 
-    /** @returns {Promise<object>} CalculationResponse alebo { error: 'timeout' | 'network' | 'http' } */
-    async function calculate(request) {
+    /**
+     * Prevod HTTP na výsledok podľa 02a-tiers.md, časť 1.6.
+     * @returns {Promise<object>} telo odpovede 200/201 alebo ApiError { error: 'storage' | 'contract' | 'network' | 'timeout' }
+     */
+    async function request(method, path, body) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
       try {
-        const response = await fetch('/api/calculate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(request),
+        const response = await fetch(path, {
+          method,
+          headers: body === undefined ? {} : { 'Content-Type': 'application/json' },
+          body: body === undefined ? undefined : JSON.stringify(body),
           signal: controller.signal,
         });
         if (response.ok) return await response.json();
-        // 422 = porušenie kontraktu (API-R6), chyba vo frontende. Používateľ vidí iba všeobecnú správu.
-        console.error(`POST /api/calculate vrátil ${response.status}:`, await response.text());
-        return { error: 'http' };
+        if (response.status === 503) return { error: 'storage' };
+        // 422 = porušenie kontraktu (API-R6) alebo neplatný vstup pri uložení. Používateľ vidí iba všeobecnú správu.
+        console.error(`${method} ${path} vrátil ${response.status}:`, await response.text());
+        return { error: 'contract' };
       } catch (err) {
         return { error: err.name === 'AbortError' ? 'timeout' : 'network' };
       } finally {
         clearTimeout(timer);
       }
     }
+
+    const calculate = (req) => request('POST', '/api/calculate', req);           // FR-01 až FR-09
+    const saveCalculation = (req) => request('POST', '/api/calculations', req);  // FR-10
+    const listCalculations = () => request('GET', '/api/calculations');          // FR-11
 
     // ---------------------------------------------------------------------------
     // F4 – DOM adaptér (FR-05, FR-09, NFR-V2-04). Nič nepočíta ani neformátuje (API-R4).
@@ -300,17 +351,71 @@
       }
     }
 
+    // FR-10, FR-11 (zobrazenie). Texty prichádzajú hotové z API; vkladajú sa iba cez textContent.
+    const saveButton = document.querySelector('[data-action="save"]');
+    const saveStatus = document.querySelector('[data-status="save"]');
+    const listStatus = document.querySelector('[data-status="list"]');
+    const listTable = document.querySelector('[data-table]');
+    const listBody = document.querySelector('[data-list="calculations"]');
+    const LIST_COLUMNS = [
+      ['createdAt', 'Uložené'], ['amount', 'Výška úveru'], ['rate', 'Sadzba'], ['years', 'Doba'],
+      ['monthly', 'Mesačná splátka'], ['extra', 'Mimoriadna splátka'],
+    ];
+
+    function setSaveEnabled(enabled) {
+      saveButton.disabled = !enabled;
+    }
+
+    function showSaveMessage(text, kind) {
+      saveStatus.textContent = text;
+      saveStatus.dataset.kind = kind ?? '';
+    }
+
+    function showListMessage(text) {
+      listStatus.textContent = text;
+      listTable.hidden = true;
+    }
+
+    function renderList(items) {
+      listBody.replaceChildren(...items.map((item) => {
+        const row = document.createElement('tr');
+        row.dataset.id = item.id;
+        for (const [key, label] of LIST_COLUMNS) {
+          const cell = document.createElement('td');
+          cell.dataset.col = key;
+          cell.dataset.label = label;
+          cell.textContent = item[key] ?? '–';  // extra: null = bez mimoriadnej splátky (FR-11)
+          row.append(cell);
+        }
+        return row;
+      }));
+      listStatus.textContent = '';
+      listTable.hidden = false;
+    }
+
     // ---------------------------------------------------------------------------
-    // F3 – riadenie: debounce 300 ms (AD-V2-02, NFR-V2-01), zobrazí sa iba posledná odpoveď (R-V2-04).
+    // F3 – riadenie: debounce 300 ms (AD-V2-02, NFR-V2-01), zobrazí sa iba posledná odpoveď (R-V2-04),
+    // uloženie (FR-10: 1 klik = najviac 1 záznam) a zoznam (FR-11).
     // ---------------------------------------------------------------------------
     const DEBOUNCE_MS = 300;
     let timer;
     let lastRequest = 0;
+    let lastListRequest = 0;
+    let shownStatus = null;   // status poslednej zobrazenej odpovede: 'ok' | 'invalid' | null (nedostupné alebo zmena)
+    let saving = false;
+
+    function updateSaveButton() {
+      // FR-10: aktívne iba pri zobrazených výsledkoch a nie počas ukladania.
+      setSaveEnabled(shownStatus === 'ok' && !saving);
+    }
 
     async function update() {
       const id = ++lastRequest;
       const response = await calculate(readForm());
-      if (id === lastRequest) render(response);  // staršie odpovede, ktoré prišli neskôr, sa zahodia
+      if (id !== lastRequest) return;  // staršie odpovede, ktoré prišli neskôr, sa zahodia
+      render(response);
+      shownStatus = response.status ?? null;
+      updateSaveButton();
     }
 
     function schedule(delay) {
@@ -318,13 +423,48 @@
       timer = setTimeout(update, delay);
     }
 
-    form.addEventListener('input', () => schedule(DEBOUNCE_MS));
+    async function refreshList() {
+      const id = ++lastListRequest;
+      const response = await listCalculations();
+      if (id !== lastListRequest) return;
+      if (response.error) showListMessage('Uložené výpočty sa nepodarilo načítať.');
+      else if (response.items.length === 0) showListMessage('Zatiaľ nie sú uložené žiadne výpočty.');
+      else renderList(response.items);
+    }
+
+    async function save() {
+      if (saving || shownStatus !== 'ok') return;
+      saving = true;
+      updateSaveButton();  // neaktívne hneď po kliknutí, ešte pred odpoveďou
+      showSaveMessage('');
+      const response = await saveCalculation(readForm());
+      saving = false;
+      updateSaveButton();
+      if (response.error) {
+        showSaveMessage('Výpočet sa nepodarilo uložiť. Skúste to znova.', 'error');  // formulár zostane
+      } else {
+        showSaveMessage('Výpočet bol uložený.', 'ok');
+        refreshList();
+      }
+    }
+
+    function onEdit(delay) {
+      // Zobrazené výsledky už nezodpovedajú formuláru: uložiť sa dá až po novom výpočte.
+      shownStatus = null;
+      updateSaveButton();
+      showSaveMessage('');
+      schedule(delay);
+    }
+
+    form.addEventListener('input', () => onEdit(DEBOUNCE_MS));
     form.addEventListener('change', (event) => {
-      if (event.target.name === 'mode') schedule(DEBOUNCE_MS);  // prepínač IN-06; pri textových poliach stačí 'input'
+      if (event.target.name === 'mode') onEdit(DEBOUNCE_MS);  // prepínač IN-06; pri textových poliach stačí 'input'
     });
     form.addEventListener('submit', (event) => { event.preventDefault(); schedule(0); });  // Enter v poli
     unavailable.querySelector('[data-action="retry"]').addEventListener('click', () => schedule(0));
-    schedule(0);  // predvyplnené hodnoty sa vypočítajú hneď po načítaní (AD-08 V1)
+    saveButton.addEventListener('click', save);
+    schedule(0);    // predvyplnené hodnoty sa vypočítajú hneď po načítaní (AD-08 V1)
+    refreshList();  // FR-11: zoznam pri načítaní stránky
   </script>
 </body>
 </html>
