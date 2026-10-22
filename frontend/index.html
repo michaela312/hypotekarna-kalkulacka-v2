@@ -450,6 +450,8 @@
 
     function onEdit(delay) {
       // Zobrazené výsledky už nezodpovedajú formuláru: uložiť sa dá až po novom výpočte.
+      // ++lastRequest zahodí aj odpoveď, ktorá je práve na ceste (patrí k starým hodnotám).
+      lastRequest += 1;
       shownStatus = null;
       updateSaveButton();
       showSaveMessage('');

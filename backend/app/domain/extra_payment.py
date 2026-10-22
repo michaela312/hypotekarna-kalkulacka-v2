@@ -46,7 +46,7 @@ def _shorter_term(balance: float, i: float, payment: float, max_payments: int) -
         paid += payment
         if balance <= _ZERO_THRESHOLD:
             return m, paid, payment
-    raise ValueError('Mimoriadna splátka v mesiaci n alebo neskôr nie je možná.')
+    raise AssertionError('nedosiahnuteľné: posledný krok cyklu vždy vráti výsledok (max_payments ≥ 1)')
 
 
 def calculate_extra(params: LoanParams, extra: ExtraParams) -> ExtraResultRaw:

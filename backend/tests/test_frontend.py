@@ -47,7 +47,7 @@ def test_frontend_bez_externych_zdrojov():
 
 def section(name: str) -> str:
     """Kód oddielu F3, F4 alebo F5 v skripte bez komentárov (od jeho nadpisu po ďalší nadpis)."""
-    parts = re.split(r'// -{10,}\n\s*// (F\d)', SCRIPT_WITH_COMMENTS)
+    parts = re.split(r'// -{10,}\s*// (F\d)', SCRIPT_WITH_COMMENTS)  # \s: LF aj CRLF (core.autocrlf=true)
     code = dict(zip(parts[1::2], parts[2::2]))[name]
     return re.sub(r'/\*.*?\*/|//[^\n]*', '', code, flags=re.S)
 
@@ -206,3 +206,15 @@ def test_frontend_texty_fr10_fr11():
 def test_frontend_zoznam_bez_innerhtml():
     """Bezpečnosť: texty z API sa vkladajú iba cez textContent, nie innerHTML."""
     assert 'innerHTML' not in SCRIPT and 'insertAdjacentHTML' not in SCRIPT
+
+
+def test_frontend_uprava_zahodi_odpoved_na_ceste():
+    """FR-10, R-V2-04: úprava formulára zneplatní odpoveď na ceste, aby nezapla tlačidlo pre staré hodnoty."""
+    on_edit = re.search(r'function onEdit\(delay\) \{(.*?)\n    \}', SCRIPT, re.S).group(1)
+    assert 'lastRequest += 1' in on_edit and 'shownStatus = null' in on_edit
+
+
+def test_frontend_sekcie_funguju_aj_s_crlf():
+    """Pravidlo 5: rozdelenie skriptu na F5/F4/F3 funguje aj po checkoute s CRLF (core.autocrlf=true)."""
+    crlf = SCRIPT_WITH_COMMENTS.replace('\n', '\r\n')
+    assert re.split(r'// -{10,}\s*// (F\d)', crlf)[1::2] == ['F5', 'F4', 'F3']
