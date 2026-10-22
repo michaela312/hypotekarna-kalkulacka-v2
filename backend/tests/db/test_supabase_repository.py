@@ -12,7 +12,7 @@ import pytest
 from supabase import ClientOptions, create_client
 
 from app.db.repository import StorageError
-from app.db.supabase_repository import SupabaseRepository, to_row
+from app.db.supabase_repository import EXTRA_COLUMNS, SupabaseRepository, to_row
 from app.services.calculator import SavedValues
 
 URL = 'https://abcd.supabase.co'
@@ -39,6 +39,7 @@ def test_to_row_sumy_ako_text():
     assert to_row(VALUES) == {
         'amount': '100000.00', 'rate': '4.00', 'years': 30,
         'monthly_payment': '477.42', 'total_paid': '171869.51', 'total_interest': '71869.51',
+        **dict.fromkeys(EXTRA_COLUMNS),
     }
 
 
