@@ -50,3 +50,9 @@ Odpovede na 4 otázky: štruktúra – jeden HTML súbor; vzhľad – čistý, m
 > 2. If we have environment variables or a local .env setup, make sure the backend correctly reads them and handles database operations.
 > 3. Write automated unit/integration tests for the database saving logic (mocking the Supabase response so tests pass reliably without needing a live internet connection).
 > 4. Run the entire test suite, commit the changes to git, push to main, and update docs/handoff.md.
+
+## Implementačný plán (05)
+
+> I need a comprehensive, step-by-step implementation plan for refactoring and updating our Mortgage Calculator (Hypotekárna kalkulačka) application. We need to decouple the application into a clean 4-tier architecture, where each part has a single, well-defined responsibility: Frontend (JavaScript) – vstupy od používateľa a zobrazenie výsledku; volá API. API – dohoda medzi frontendom a backendom: aký vstup, aký výstup. Backend (Python) – výpočty: splátka, mimoriadna splátka, neskôr ďalšia logika. Supabase – databáza, do ktorej aplikácia ukladá dáta.
+
+Výsledok: `docs/v2/05-plan.md`.

@@ -19,7 +19,7 @@ Hypotekárna kalkulačka v2. Projekt je vo fáze plánovania V1.
 - `docs/v1/06-retro.md` – retrospektíva.
 - `docs/v1/prompts.md` – prompty použité pri plánovaní V1.
 
-- `docs/v2/` – plán V2 (frontend, API, backend FastAPI, Supabase): `01-functional.md`, `01-architecture-v2.md` (implementačný pohľad po 4 vrstvách), `02-architecture.md`, `api-contract.md`, `prompts.md`.
+- `docs/v2/` – plán V2 (frontend, API, backend FastAPI, Supabase): `01-functional.md`, `01-architecture-v2.md` (implementačný pohľad po 4 vrstvách), `02-architecture.md`, `api-contract.md`, `05-plan.md` (implementačný plán, kroky 0 až 13), `prompts.md`.
 
 Dokumenty v `docs/v1/` a `docs/v2/` sa spracúvajú v číselnom poradí. Na konci každej relácie sa aktualizuje `docs/handoff.md`.
 

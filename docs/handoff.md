@@ -45,17 +45,15 @@
   - ručne overené: pri nedostupnej Supabase odpoveď za 28 ms a v logu „Výpočet sa nepodarilo uložiť do Supabase: timed out“;
   - **neoverené proti skutočnej Supabase** – `backend/.env` zatiaľ neexistuje;
   - známy dôsledok: pri písaní vzniká riadok pri každej pauze ≥ 300 ms s platnými hodnotami (aj duplicitné).
+- **Hotové: `docs/v2/05-plan.md`** (2026-10-22) – implementačný plán dokončenia 4 vrstiev: kroky 0 až 13, každý s vrstvou, ID požiadaviek, menovanými testami (spolu ≥ 110 nových v pytest, ≥ 14 e2e), kritériom hotovosti a správou commitu; rozhodnutia RP-01 až RP-05; Definition of Done D-V2-01 až D-V2-07; riziká R-P-01 až R-P-06. Vznikol pred 03 a 04 na výslovnú požiadavku používateľky.
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
 ### Ďalšie kroky V2
-1. B6 mimoriadna splátka (FR-06 až FR-09) a kľúč `extra` v B10; akceptačné testy na 8 riadkoch DR-10.
-2. Založiť projekt Supabase, spustiť migráciu a vyplniť `backend/.env` (README); overiť, že po výpočte pribudne riadok. Rozhodnúť, či obmedziť duplicitné riadky (AD-V2-14). Potom `GET /api/calculations` (FR-11) a zoznam vo frontende.
-3. Frontend: polia mimoriadnej splátky, tlačidlo „Uložiť výpočet“ a zoznam (po B6, FR-10, FR-11) a Playwright e2e testy.
-4. Rozhodnúť OQ-V2-05 a OQ-V2-06 z `01-architecture-v2.md` (doplnenie `SavedExtra` do 02, premenovanie súboru); OQ-V2-04 je rozhodnutá.
-5. Rozhodnúť OQ-V2-01 (zoznam spoločný alebo s prihlásením), OQ-V2-02 (V2 nahrádza realizáciu V1) a OQ-V2-03 (predvolený režim).
-6. `docs/v2/03-test-scenarios.md` – scenáre pre B1 až B15, F1 až F5, API a e2e, vrátane DR-10 a NFR-V2-01 až NFR-V2-08.
-7. `docs/v2/04-review.md` → `05-plan.md` (presné verzie závislostí, inštalácia Pythonu podľa R-V2-01, založenie projektu Supabase).
+1. Rozhodnúť RP-01 až RP-05 v `05-plan.md`, časť 2 (najdôležitejšie RP-01: automatické ukladanie AD-V2-14 vs. tlačidlo FR-10; návrh: vrátiť AD-V2-07).
+2. Voliteľne review `05-plan.md` v čistej session (04 V2).
+3. Postupovať podľa `05-plan.md` od kroku 0 (zosúladenie dokumentov), potom kroky 1 až 13; po každom kroku commit, push a aktualizácia tohto súboru.
+4. Krok 12 (Supabase naživo) vyžaduje, aby používateľka založila projekt a vyplnila `backend/.env`.
 
 ---
 
