@@ -20,7 +20,8 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 | Krok | Vrstva | Stav |
 |------|--------|------|
 | 0 | dokumentácia | hotové (`577f910`) |
-| 1–5 | 3. Backend (jadro) | čaká |
+| 1 | 3. Backend (jadro) | hotové |
+| 2–5 | 3. Backend (jadro) | čaká |
 | 6, 8 | 2. API | čaká |
 | 7 | 4. Supabase (kód) | čaká |
 | 9, 10 | 1. Frontend | čaká |

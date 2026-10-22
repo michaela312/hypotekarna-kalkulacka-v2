@@ -52,6 +52,9 @@
 - `05-plan.md` má od 2026-10-22 tabuľku „Stav krokov“ pod úvodom; po každom kroku sa aktualizuje.
 - **Hotové: krok 0 `05-plan.md`** (2026-10-22) – používateľka prijala RP-01 až RP-05 podľa návrhu. Zapísané: AD-V2-15 (ukladá sa iba po kliknutí, nahrádza AD-V2-14; v kóde až v kroku 8, dovtedy `POST /api/calculate` ešte ukladá automaticky), OQ-V2-01 a OQ-V2-03 rozhodnuté, text OQ-V2-04 v 01, `SavedExtra` a `SavedRecord` v 02, `01-architecture-v2.md` premenovaný na `02a-tiers.md`, odkazy na `frontend/js/` opravené podľa AD-V2-13.
 
+- **Realizácia `05-plan.md` (2026-10-22):**
+  - krok 1: B2 hranice IN-04/IN-05, B3 `validate_extra_against_loan`, `ValidationResult.has_extra` a `partial`; 29 nových testov (225 spolu).
+
 ### Ďalšie kroky V2
 1. Voliteľne review `05-plan.md` v čistej session (04 V2).
 2. Krok 1 z `05-plan.md` (B2, B3 – vstupy IN-04 až IN-06), potom kroky 2 až 13; po každom kroku commit, push a aktualizácia tohto súboru.

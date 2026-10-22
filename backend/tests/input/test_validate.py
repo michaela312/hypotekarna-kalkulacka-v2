@@ -10,11 +10,13 @@ VALID = {'amount': '100 000', 'rate': '4', 'years': '30'}
 
 
 def test_limits_podla_tabulky_vstupov():
-    """IN-01, IN-02, IN-03"""
+    """IN-01 až IN-05 (statické hranice)"""
     assert LIMITS == {
         'amount': FieldLimits(min=1000, max=1_000_000, decimals=2),
         'rate': FieldLimits(min=0, max=20, decimals=2),
         'years': FieldLimits(min=1, max=30, decimals=0),
+        'extra_month': FieldLimits(min=1, max=359, decimals=0),
+        'extra_amount': FieldLimits(min=100, max=1_000_000, decimals=2),
     }
 
 
