@@ -31,8 +31,8 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 | 9 | 1. Frontend | hotové |
 | 10 | 1. Frontend | hotové |
 | 11 | e2e (1 + 2 + 3) | hotové |
-| 12 | 4. Supabase naživo | čaká na používateľku |
-| 13 | uzavretie | čaká |
+| 12 | 4. Supabase naživo | **čaká na používateľku** (`backend/.env` má prázdny kľúč) |
+| 13 | uzavretie | hotové (`03-test-scenarios.md`, `06-retro.md`, review) |
 
 ---
 

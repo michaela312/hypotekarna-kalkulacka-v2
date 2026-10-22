@@ -62,3 +62,9 @@ Výsledok: `docs/v2/05-plan.md`.
 > Based on the following task description for Lesson 5, please create a comprehensive, step-by-step implementation plan to update the architecture of our Mortgage Calculator (Hypotekárna kalkulačka). We need to refactor and split the application into four distinct tiers, where each tier has a single responsibility: Frontend (JavaScript) … API (Contract) … Backend (Python) … Supabase (Database) …
 
 Výsledok: plán už existoval (`05-plan.md`, krok 0 hotový). Overený voči kódu (196 testov prechádza, kritériá kroku 0 splnené), doplnená tabuľka stavu krokov, nový plán nevznikol.
+
+## Realizácia 05-plan.md (kroky 1 až 13)
+
+> Read the complete implementation plan in `docs/v2/05-plan.md`. Proceed step by step until the entire plan is fully implemented and verified.
+
+Výsledok: kroky 1 až 11 a 13 hotové, každý v samostatnom commite; krok 12 čaká na používateľku (Supabase projekt a kľúč). Priebeh a odchýlky v `06-retro.md`.

@@ -19,13 +19,14 @@ Hypotekárna kalkulačka v2. Projekt je vo fáze plánovania V1.
 - `docs/v1/06-retro.md` – retrospektíva.
 - `docs/v1/prompts.md` – prompty použité pri plánovaní V1.
 
-- `docs/v2/` – plán V2 (frontend, API, backend FastAPI, Supabase): `01-functional.md`, `02-architecture.md`, `02a-tiers.md` (implementačný pohľad po 4 vrstvách), `api-contract.md`, `05-plan.md` (implementačný plán, kroky 0 až 13), `prompts.md`.
+- `docs/v2/` – plán V2 (frontend, API, backend FastAPI, Supabase): `01-functional.md`, `02-architecture.md`, `02a-tiers.md` (implementačný pohľad po 4 vrstvách), `api-contract.md`, `05-plan.md` (implementačný plán, kroky 0 až 13), `03-test-scenarios.md` (vygenerované z testov), `06-retro.md`, `prompts.md`.
 
 Dokumenty v `docs/v1/` a `docs/v2/` sa spracúvajú v číselnom poradí. Na konci každej relácie sa aktualizuje `docs/handoff.md`.
 
 ## Kód
 - `frontend/index.html` – frontend v jednom súbore (AD-V2-13), servíruje ho backend na http://127.0.0.1:8000/.
 - `backend/` – Python backend V2 (FastAPI). Testy: `backend/.venv/Scripts/python.exe -m pytest` z priečinka `backend/`. Postup v `backend/README.md`.
+- `e2e/` – Playwright testy: `npm run test:e2e` z koreňa (backend sa spustí sám so `STORAGE=memory` na porte 8001).
 - `supabase/migrations/` – SQL migrácie. Nastavenie Supabase a premenných prostredia v `README.md`.
 
 ## Konvencie

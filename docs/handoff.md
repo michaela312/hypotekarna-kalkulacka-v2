@@ -3,6 +3,7 @@
 ## V2 – prechod na 4 časti (frontend, API, backend FastAPI, Supabase)
 
 ### Aktuálny stav V2
+- **Stav k 2026-10-22 (koniec relácie):** `05-plan.md` je zrealizovaný okrem kroku 12. Hotové FR-01 až FR-11 vo všetkých 4 vrstvách; `pytest` 401/401, `npm run test:e2e` 18/18 (4× za sebou). Ukladá sa iba po kliknutí (AD-V2-15). Supabase je overená iba cez `httpx.MockTransport`, nie naživo. Podrobnosti nižšie v „Realizácia `05-plan.md`“ a v `docs/v2/06-retro.md`. Staršie odrážky nižšie opisujú stav v čase vzniku (napr. automatické ukladanie AD-V2-14 už neplatí).
 - Používateľka chce kalkulačku prerobiť na 4 časti. Kód zatiaľ neexistuje ani vo V1, takže V2 sa plánuje rovno, bez prepisovania kódu.
 - Hotové: `docs/v2/01-functional.md`:
   - FR-01 až FR-05, IN-01 až IN-03 a DR-01 až DR-04 sú prevzaté z V1 bez zmeny;
@@ -55,7 +56,7 @@
 - **Realizácia `05-plan.md` (2026-10-22):**
   - krok 1: B2 hranice IN-04/IN-05, B3 `validate_extra_against_loan`, `ValidationResult.has_extra` a `partial`; 29 nových testov (225 spolu).
   - krok 2: B4 `balance_after` (DR-05), B5 `round_down`; 20 nových testov (245). Zistené: pri 1 000 000 €, 20 % je |B_360| = 1,4e-6 € (nad prahom 1e-6, R-P-02), test používa relatívnu toleranciu.
-  - krok 3: B6 `app/domain/extra_payment.py`; 8/8 riadkov DR-10 sedí na 0,01 € hneď na prvý pokus; cyklus DR-07 má strop n − K splátok (R-P-02); 24 nových testov.
+  - krok 3: B6 `app/domain/extra_payment.py`; 8/8 riadkov DR-10 sedí na 0,01 € hneď na prvý pokus; cyklus DR-07 má strop n − K splátok (R-P-02); 26 nových testov.
   - krok 4: B7 `format_rate`, B8 `plural`, správy FR-09 (`extra_month_message`, `extra_amount_message`), `payments_text`, `years_text`, `extra_text`; 31 nových testov (302).
   - krok 5: B9 s mimoriadnou splátkou (`ExtraResult`, `SavedExtra`, správy FR-09 podľa kontextu); 8/8 DR-10 a 9 riadkov FR-09 ako akceptačné testy; 23 nových testov (325).
   - krok 6: B10 `ExtraInput`, `ShorterTermResult`, `LowerPaymentResult`, `FieldKey` s `extraMonth`/`extraAmount`; B11 prevod chýb na camelCase; frontend posiela `extra` (zatiaľ prázdne); staré testy API doplnené o `extra`; 21 nových testov (346). V prehliadači overené (477,42 €). `.claude/launch.json` má konfiguráciu `backend-memory` (`STORAGE=memory`), lebo `backend/.env` existuje, ale `SUPABASE_SERVICE_ROLE_KEY` je prázdny.
@@ -64,11 +65,13 @@
   - krok 9: `<fieldset>` Mimoriadna splátka (IN-04, IN-05, prepínač IN-06 vo vnorenom `<fieldset>`), blok výsledkov `extra` (riadky druhého režimu skryté); 7 nových statických testov (392). V prehliadači overených všetkých 8 riadkov DR-10, chyba FR-09 s `aria-invalid`/`aria-describedby`, 375 px bez vodorovného posunu, svetlý aj tmavý režim. Opravené: text „300 mesiacov (o 60 mesiacov menej)“ pretekal pri šírke 264 px (`nowrap`), teraz sa zalomí.
   - krok 10: F5 `request()` (jediný `fetch`, 3 endpointy, prevod 503/422/sieť/timeout podľa 02a 1.6), tlačidlo „Uložiť výpočet“ (aktívne iba pri zobrazených výsledkoch, neaktívne počas písania a ukladania), zoznam 20 výpočtov ako tabuľka (v úzkom stĺpci karty cez `data-label`), texty FR-10/FR-11; 7 nových statických testov (399). V prehliadači: 2 rýchle kliky = 1 riadok, uloženie s mimoriadnou splátkou, prázdny zoznam, 375 px bez vodorovného posunu.
   - krok 11: `package.json` iba s `@playwright/test` 1.64.0 (najnovšia verzia staršia ako 2 týždne), `playwright.config.js` (backend na porte 8001, `STORAGE=memory`, `retries: 0`, 1 worker, Chromium), `e2e/calculator.spec.js` – 18 testov; `npm run test:e2e` prešlo 4× za sebou (18/18). Na Windows musí byť cesta k Pythonu cez `path.join` (cmd.exe nepozná „/“). README: časť Testy.
+  - review (`/code-review`): 6 nálezov, 3 opravené (odpoveď na ceste po úprave formulára už nezapne „Uložiť“, test sekcií funguje s CRLF, nedosiahnuteľná vetva B6), 3 ponechané; 401 testov.
+  - krok 13: `docs/v2/03-test-scenarios.md` vygenerované z testov (každá FR, IN, DR, API-R a NFR-V2 má ≥ 1 test), `docs/v2/06-retro.md` (plán vs. skutočnosť, odchýlky O-01 až O-12), matica v 02 overená, CLAUDE.md doplnený.
 
 ### Ďalšie kroky V2
-1. Voliteľne review `05-plan.md` v čistej session (04 V2).
-2. Krok 1 z `05-plan.md` (B2, B3 – vstupy IN-04 až IN-06), potom kroky 2 až 13; po každom kroku commit, push a aktualizácia tohto súboru.
-3. Krok 12 (Supabase naživo) vyžaduje, aby používateľka založila projekt a vyplnila `backend/.env`.
+1. **Krok 12 `05-plan.md` – Supabase naživo (robí používateľka):** `backend/.env` existuje, ale `SUPABASE_SERVICE_ROLE_KEY` je prázdny a `SUPABASE_URL` má iba 20 znakov (asi nie je skutočná URL projektu). Postup: README, časť „Nastavenie Supabase“ (projekt `eu-central-1`, migrácia S1 v SQL Editore, URL a kľúč `service_role`). Potom Claude overí podľa `02a-tiers.md` 4.4: spustiť `backend` (nie `backend-memory`), 1 uloženie → riadok s `monthly_payment = 477.42`; uloženie s mimoriadnou splátkou → 9 stĺpcov `extra_*`; anon kľúč dostane `[]`; uloženie aj zoznam ≤ 2 s. Výsledok zapísať do `06-retro.md` a riadku 12 v `05-plan.md`.
+2. Voliteľne `.gitattributes` s `eol=lf` (statické testy čítajú `index.html`, repozitár má `core.autocrlf=true`).
+3. Voliteľne review V2 v čistej session (04 V2) a 3 ponechané nálezy z review (`06-retro.md`, časť 3).
 
 ---
 

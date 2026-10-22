@@ -267,6 +267,8 @@ Pri moduloch prevzatých z V1 sa uvádza iba rozdiel. Ostatné platí podľa `do
 
 ### Matica sledovateľnosti
 
+Overená proti testom 2026-10-22 (krok 13 `05-plan.md`): každá požiadavka nižšie má ≥ 1 test, počty sú v `03-test-scenarios.md`, časť „Pokrytie požiadaviek“.
+
 | Požiadavka | Moduly |
 |------------|--------|
 | FR-01 až FR-03 | B4, B9, F4 |
