@@ -49,6 +49,7 @@
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
+- `05-plan.md` má od 2026-10-22 tabuľku „Stav krokov“ pod úvodom; po každom kroku sa aktualizuje.
 - **Hotové: krok 0 `05-plan.md`** (2026-10-22) – používateľka prijala RP-01 až RP-05 podľa návrhu. Zapísané: AD-V2-15 (ukladá sa iba po kliknutí, nahrádza AD-V2-14; v kóde až v kroku 8, dovtedy `POST /api/calculate` ešte ukladá automaticky), OQ-V2-01 a OQ-V2-03 rozhodnuté, text OQ-V2-04 v 01, `SavedExtra` a `SavedRecord` v 02, `01-architecture-v2.md` premenovaný na `02a-tiers.md`, odkazy na `frontend/js/` opravené podľa AD-V2-13.
 
 ### Ďalšie kroky V2

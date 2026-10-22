@@ -56,3 +56,9 @@ Odpovede na 4 otázky: štruktúra – jeden HTML súbor; vzhľad – čistý, m
 > I need a comprehensive, step-by-step implementation plan for refactoring and updating our Mortgage Calculator (Hypotekárna kalkulačka) application. We need to decouple the application into a clean 4-tier architecture, where each part has a single, well-defined responsibility: Frontend (JavaScript) – vstupy od používateľa a zobrazenie výsledku; volá API. API – dohoda medzi frontendom a backendom: aký vstup, aký výstup. Backend (Python) – výpočty: splátka, mimoriadna splátka, neskôr ďalšia logika. Supabase – databáza, do ktorej aplikácia ukladá dáta.
 
 Výsledok: `docs/v2/05-plan.md`.
+
+## Implementačný plán (05) – opakovaná požiadavka (lekcia 5)
+
+> Based on the following task description for Lesson 5, please create a comprehensive, step-by-step implementation plan to update the architecture of our Mortgage Calculator (Hypotekárna kalkulačka). We need to refactor and split the application into four distinct tiers, where each tier has a single responsibility: Frontend (JavaScript) … API (Contract) … Backend (Python) … Supabase (Database) …
+
+Výsledok: plán už existoval (`05-plan.md`, krok 0 hotový). Overený voči kódu (196 testov prechádza, kritériá kroku 0 splnené), doplnená tabuľka stavu krokov, nový plán nevznikol.

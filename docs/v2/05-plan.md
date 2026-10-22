@@ -15,6 +15,19 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 - každý krok obsahuje zoznam testov s menami a ID požiadaviek, z ktorých sa dá `03-test-scenarios.md` V2 vytvoriť mechanicky (krok 13);
 - pred krokom 1 sa odporúča review tohto plánu v čistej session (experiment E2 vo V1: čistý kontrolór našiel 82 % problémov, autorský 64 %).
 
+**Stav krokov (aktualizuje sa po každom commite):**
+
+| Krok | Vrstva | Stav |
+|------|--------|------|
+| 0 | dokumentácia | hotové (`577f910`) |
+| 1–5 | 3. Backend (jadro) | čaká |
+| 6, 8 | 2. API | čaká |
+| 7 | 4. Supabase (kód) | čaká |
+| 9, 10 | 1. Frontend | čaká |
+| 11 | e2e (1 + 2 + 3) | čaká |
+| 12 | 4. Supabase naživo | čaká na používateľku |
+| 13 | uzavretie | čaká |
+
 ---
 
 ## 1. Východisko (stav k 2026-10-22, commit `4ceb666`)
