@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
   Frontend V2 – jeden súbor (F1 markup, F2 vzhľad, F3 riadenie, F4 DOM, F5 API klient).
-  Implementuje FR-01 až FR-05 (zobrazenie), NFR-V2-01, NFR-V2-04, NFR-V2-05, API-R1, API-R3, API-R4, API-R7.
+  Implementuje FR-01 až FR-09 (zobrazenie), NFR-V2-01, NFR-V2-04, NFR-V2-05, API-R1, API-R3, API-R4, API-R7.
   Nič nepočíta, nevaliduje ani neformátuje: posiela surové texty na POST /api/calculate a zobrazí hotové texty.
   Spustenie: z priečinka backend/ príkaz `uvicorn app.main:app` a otvoriť http://127.0.0.1:8000/
 -->
@@ -20,6 +20,7 @@
       --border: #d5d9e0;
       --accent: #1f5fbf;
       --accent-soft: #e8f0fc;
+      --success: #1e7b3c;
       --error: #b42318;
       --error-soft: #fdecea;
       --focus: #1f5fbf;
@@ -34,6 +35,7 @@
         --border: #3a3f48;
         --accent: #7fb0ff;
         --accent-soft: #1d2a40;
+        --success: #6fd08c;
         --error: #ff8a80;
         --error-soft: #3a1f1e;
         --focus: #7fb0ff;
@@ -54,6 +56,7 @@
       padding: 32px 16px;
     }
     h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    h2 { font-size: 1rem; margin: 0 0 12px; }
     .lead { color: var(--muted); margin: 0 0 24px; }
 
     .card {
@@ -62,11 +65,11 @@
       border-radius: 12px;
       padding: 20px;
     }
-    .card + .card { margin-top: 16px; }
+    .card + .card, .card + .banner + .card { margin-top: 16px; }
 
     .field + .field { margin-top: 16px; }
     label { display: block; font-weight: 600; margin-bottom: 4px; }
-    input {
+    input[type="text"] {
       width: 100%;
       padding: 10px 12px;
       font: inherit;
@@ -80,6 +83,16 @@
     .error { color: var(--error); font-size: 0.875rem; margin: 4px 0 0; }
     .error:empty { display: none; }
 
+    fieldset { border: 0; border-top: 1px solid var(--border); margin: 20px 0 0; padding: 16px 0 0; min-width: 0; }
+    legend { font-weight: 700; padding: 0 8px 0 0; }
+    .hint { color: var(--muted); font-size: 0.875rem; margin: 0 0 12px; }
+    .row { display: flex; gap: 12px; }
+    .row .field { flex: 1; min-width: 0; margin-top: 0; }
+    .modes { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; border: 0; padding: 0; }
+    .modes legend { font-weight: 600; padding: 0; margin-bottom: 4px; }
+    .modes label { display: inline-flex; align-items: center; gap: 6px; font-weight: 400; margin: 0; cursor: pointer; }
+    .modes input { accent-color: var(--accent); width: 18px; height: 18px; margin: 0; }
+
     .results { margin: 0; }
     .results div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; }
     .results div + div { border-top: 1px solid var(--border); }
@@ -87,6 +100,9 @@
     .results dd { margin: 0; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }  /* FR-04 */
     .results .main { flex-direction: column; gap: 0; padding: 0 0 12px; }
     .results .main dd { font-size: 2rem; color: var(--accent); }
+    .results .saved dd { color: var(--success); }
+    .results dd[data-result="extra.payments"] { white-space: normal; text-align: right; }  /* text, nie suma */
+    .extra { margin-top: 16px; padding-top: 16px; border-top: 2px solid var(--border); }
 
     .banner {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -99,6 +115,11 @@
       border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px;
     }
     [hidden] { display: none !important; }
+
+    @media (max-width: 400px) {
+      .row { flex-direction: column; gap: 16px; }
+      .results div { flex-wrap: wrap; gap: 0 16px; }
+    }
   </style>
 </head>
 <body>
@@ -123,6 +144,29 @@
         <input id="years" data-field="years" type="text" inputmode="numeric" autocomplete="off" value="30">
         <p class="error" id="years-error" data-error="years"></p>
       </div>
+
+      <!-- IN-04 až IN-06, FR-06 až FR-09. Obe polia prázdne = bez mimoriadnej splátky. -->
+      <fieldset>
+        <legend>Mimoriadna splátka</legend>
+        <p class="hint">Nepovinné. Zaplatíte ju spolu s riadnou splátkou v zadanom mesiaci.</p>
+        <div class="row">
+          <div class="field">
+            <label for="extraMonth">V mesiaci (poradie splátky)</label>
+            <input id="extraMonth" data-field="extraMonth" type="text" inputmode="numeric" autocomplete="off" value="">
+            <p class="error" id="extraMonth-error" data-error="extraMonth"></p>
+          </div>
+          <div class="field">
+            <label for="extraAmount">Suma (€)</label>
+            <input id="extraAmount" data-field="extraAmount" type="text" inputmode="decimal" autocomplete="off" value="">
+            <p class="error" id="extraAmount-error" data-error="extraAmount"></p>
+          </div>
+        </div>
+        <fieldset class="modes">
+          <legend>Po mimoriadnej splátke chcem</legend>
+          <label><input type="radio" name="mode" value="shorter_term" checked> Kratšia doba</label>
+          <label><input type="radio" name="mode" value="lower_payment"> Nižšia splátka</label>
+        </fieldset>
+      </fieldset>
     </form>
 
     <section class="card" data-results aria-live="polite" aria-label="Výsledok" hidden>
@@ -131,6 +175,18 @@
         <div><dt>Celkom zaplatíte</dt><dd data-result="total"></dd></div>
         <div><dt>Z toho úrok</dt><dd data-result="interest"></dd></div>
       </dl>
+      <!-- FR-06 až FR-08: zobrazí sa iba ak results.extra !== null; riadky druhého režimu sú skryté. -->
+      <div class="extra" data-extra-mode="" hidden>
+        <h2>S mimoriadnou splátkou</h2>
+        <dl class="results">
+          <div><dt>Počet splátok</dt><dd data-result="extra.payments"></dd></div>
+          <div><dt>Posledná splátka</dt><dd data-result="extra.lastPayment"></dd></div>
+          <div><dt>Nová mesačná splátka</dt><dd data-result="extra.newMonthly"></dd></div>
+          <div><dt>Celkom zaplatíte</dt><dd data-result="extra.total"></dd></div>
+          <div><dt>Z toho úrok</dt><dd data-result="extra.interest"></dd></div>
+          <div class="saved"><dt>Ušetríte na úroku</dt><dd data-result="extra.interestSaved"></dd></div>
+        </dl>
+      </div>
     </section>
 
     <div class="banner" data-unavailable role="alert" hidden>
@@ -170,20 +226,29 @@
     }
 
     // ---------------------------------------------------------------------------
-    // F4 – DOM adaptér (FR-05, NFR-V2-04). Nič nepočíta ani neformátuje (API-R4).
+    // F4 – DOM adaptér (FR-05, FR-09, NFR-V2-04). Nič nepočíta ani neformátuje (API-R4).
     // ---------------------------------------------------------------------------
-    const FIELDS = ['amount', 'rate', 'years'];
+    const FIELDS = ['amount', 'rate', 'years', 'extraMonth', 'extraAmount'];
+    const EXTRA_RESULTS = ['payments', 'lastPayment', 'newMonthly', 'total', 'interest', 'interestSaved'];
     const form = document.querySelector('[data-form]');
     const results = document.querySelector('[data-results]');
+    const extraBox = results.querySelector('[data-extra-mode]');
     const unavailable = document.querySelector('[data-unavailable]');
     const field = (name) => form.querySelector(`[data-field="${name}"]`);
     const errorEl = (name) => form.querySelector(`[data-error="${name}"]`);
+    const resultEl = (key) => results.querySelector(`[data-result="${key}"]`);
 
     function readForm() {
-      // Kľúč extra je povinný (API-R6). Polia mimoriadnej splátky pribudnú vo formulári v kroku 9.
+      // Surové texty (API-R3). Kľúč extra je povinný aj pri prázdnych poliach (API-R6).
       return {
-        ...Object.fromEntries(FIELDS.map((name) => [name, field(name).value])),
-        extra: { month: '', amount: '', mode: 'shorter_term' },
+        amount: field('amount').value,
+        rate: field('rate').value,
+        years: field('years').value,
+        extra: {
+          month: field('extraMonth').value,
+          amount: field('extraAmount').value,
+          mode: form.querySelector('input[name="mode"]:checked').value,
+        },
       };
     }
 
@@ -201,16 +266,29 @@
       }
     }
 
+    function renderExtra(extra) {
+      // extra === null: IN-04 aj IN-05 prázdne (FR-09) – blok sa skryje.
+      extraBox.hidden = extra === null;
+      extraBox.dataset.extraMode = extra?.mode ?? '';
+      for (const key of EXTRA_RESULTS) {
+        const value = extra?.[key];
+        const el = resultEl(`extra.${key}`);
+        el.textContent = value ?? '';
+        el.parentElement.hidden = value === undefined;  // riadky druhého režimu sa nezobrazia
+      }
+    }
+
     function render(response) {
       if (response.status === 'ok') {
         for (const key of ['monthly', 'total', 'interest']) {
-          results.querySelector(`[data-result="${key}"]`).textContent = response.results[key];
+          resultEl(key).textContent = response.results[key];
         }
+        renderExtra(response.results.extra);
         showErrors({});
         results.hidden = false;
         unavailable.hidden = true;
       } else if (response.status === 'invalid') {
-        // FR-05: pri neplatnom vstupe sa nezobrazí žiadny výsledok.
+        // FR-05, FR-09: pri neplatnom vstupe sa nezobrazí žiadny výsledok.
         showErrors(response.errors);
         results.hidden = true;
         unavailable.hidden = true;
@@ -241,6 +319,9 @@
     }
 
     form.addEventListener('input', () => schedule(DEBOUNCE_MS));
+    form.addEventListener('change', (event) => {
+      if (event.target.name === 'mode') schedule(DEBOUNCE_MS);  // prepínač IN-06; pri textových poliach stačí 'input'
+    });
     form.addEventListener('submit', (event) => { event.preventDefault(); schedule(0); });  // Enter v poli
     unavailable.querySelector('[data-action="retry"]').addEventListener('click', () => schedule(0));
     schedule(0);  // predvyplnené hodnoty sa vypočítajú hneď po načítaní (AD-08 V1)
