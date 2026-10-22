@@ -1,7 +1,7 @@
 # Hypotekárna kalkulačka v2
 
 Hypotekárna kalkulačka so 4 časťami: frontend (HTML + JS), API, backend (Python, FastAPI) a databáza Supabase.
-Plán V2 je v `docs/v2/`. Hotový je základný výpočet (FR-01 až FR-05) v backende aj vo frontende. Každý platný výpočet sa automaticky uloží do tabuľky `calculations` v Supabase (AD-V2-14).
+Plán V2 je v `docs/v2/`. Backend počíta splátku, celkovú sumu a úrok (FR-01 až FR-05) aj mimoriadnu splátku (FR-06 až FR-09). Výpočet sa uloží do tabuľky `calculations` v Supabase iba po kliknutí na „Uložiť výpočet“ (FR-10, AD-V2-15) a posledných 20 uložených výpočtov sa zobrazí pod kalkulačkou (FR-11).
 
 ## Spustenie
 
@@ -73,9 +73,7 @@ Ak pri `STORAGE=supabase` niektorá premenná chýba, backend vypíše jej názo
 
 ### Overenie, že sa ukladá
 
-Po spustení backendu zadajte vo formulári platné hodnoty. V Supabase **Table Editor → calculations** pribudne nový riadok. Ak sa uloženie nepodarí, výpočet sa aj tak zobrazí a v termináli backendu je správa „Výpočet sa nepodarilo uložiť do Supabase: …“.
-
-Každá pauza pri písaní (≥ 300 ms) s platnými hodnotami vytvorí nový riadok (AD-V2-14).
+Po spustení backendu kliknite na **Uložiť výpočet**. V Supabase **Table Editor → calculations** pribudne 1 nový riadok (pri predvyplnených hodnotách `monthly_payment = 477.42`) a výpočet sa zobrazí v zozname pod kalkulačkou. Ak sa uloženie nepodarí, zobrazí sa „Výpočet sa nepodarilo uložiť. Skúste to znova.“ a v termináli backendu je správa „Výpočet sa nepodarilo uložiť do Supabase: …“. Samotný výpočet databázu nepotrebuje (AD-V2-15).
 
 ### Pozastavený projekt
 

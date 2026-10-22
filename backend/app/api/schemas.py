@@ -1,6 +1,7 @@
 """B10 – API kontrakt v kóde (docs/v2/api-contract.md).
 
-Implementuje API-R1 až API-R6 pre POST /api/calculate (FR-01 až FR-09).
+Implementuje API-R1 až API-R6 pre POST /api/calculate (FR-01 až FR-09),
+POST /api/calculations (FR-10) a GET /api/calculations (FR-11).
 Každá zmena tohto súboru musí byť aj v api-contract.md (D-V2-07).
 """
 from typing import Literal
@@ -68,3 +69,26 @@ class InvalidResponse(ApiModel):
 
 
 CalculationResponse = OkResponse | InvalidResponse
+
+
+class SaveResponse(ApiModel):                                                # FR-10, HTTP 201
+    id: str
+    created_at: str   # "15. 10. 2026 14:05" (B7a)
+
+
+class SavedCalculation(ApiModel):                                            # FR-11
+    id: str
+    created_at: str   # "15. 10. 2026 14:05"
+    amount: str       # "100 000,00 €"
+    rate: str         # "4,00 %"
+    years: str        # "30 rokov"
+    monthly: str      # "477,42 €"
+    extra: str | None # "10 000,00 € v 12. mesiaci, kratšia doba"
+
+
+class CalculationList(ApiModel):                                             # FR-11, 0 až 20 položiek
+    items: list[SavedCalculation]
+
+
+class StorageErrorBody(ApiModel):                                            # HTTP 503
+    error: Literal['storage_unavailable']

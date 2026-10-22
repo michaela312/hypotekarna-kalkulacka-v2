@@ -60,6 +60,7 @@
   - krok 5: B9 s mimoriadnou splátkou (`ExtraResult`, `SavedExtra`, správy FR-09 podľa kontextu); 8/8 DR-10 a 9 riadkov FR-09 ako akceptačné testy; 23 nových testov (325).
   - krok 6: B10 `ExtraInput`, `ShorterTermResult`, `LowerPaymentResult`, `FieldKey` s `extraMonth`/`extraAmount`; B11 prevod chýb na camelCase; frontend posiela `extra` (zatiaľ prázdne); staré testy API doplnené o `extra`; 21 nových testov (346). V prehliadači overené (477,42 €). `.claude/launch.json` má konfiguráciu `backend-memory` (`STORAGE=memory`), lebo `backend/.env` existuje, ale `SUPABASE_SERVICE_ROLE_KEY` je prázdny.
   - krok 7: B12 `list_latest`; B13 `to_row` s 9 stĺpcami `extra_*`, `from_row`, `list_latest`. Zistené: postgrest pri 5xx opakuje GET 3× (~7 s) – vypnuté `.retry(False)`, inak by NFR-V2-07 a timeout 5 s frontendu neplatili. 22 nových testov (368).
+  - krok 8: `tzdata==2026.5` (bez neho `ZoneInfoNotFoundError` na Windows, R-P-03 potvrdené), B7a `app/format/datetime.py`, `POST /api/calculations` (201/422/503), `GET /api/calculations` (200/503), handler `StorageError` → 503 v B14; **AD-V2-15 v kóde**: `POST /api/calculate` už neukladá, `BackgroundTasks` odstránené, 5 testov AD-V2-14 nahradených; README a `backend/README.md` upravené; 385 testov.
 
 ### Ďalšie kroky V2
 1. Voliteľne review `05-plan.md` v čistej session (04 V2).
