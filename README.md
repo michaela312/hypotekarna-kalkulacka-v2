@@ -24,7 +24,7 @@ Potom otvorte http://127.0.0.1:8000/. Súbor `frontend/index.html` nefunguje otv
 - `CLAUDE.md` – pravidlá projektu
 - `docs/handoff.md` – aktuálny stav a ďalšie kroky
 - `docs/v1/` – plánovacie dokumenty V1 (01 až 06, `prompts.md`)
-- `docs/v2/` – plán V2: `01-functional.md`, `01-architecture-v2.md`, `02-architecture.md`, `api-contract.md`, `prompts.md`
+- `docs/v2/` – plán V2: `01-functional.md`, `02-architecture.md`, `02a-tiers.md`, `api-contract.md`, `05-plan.md`, `prompts.md`
 - `frontend/index.html` – frontend v jednom súbore (HTML, CSS, JavaScript, bez závislostí)
 - `backend/` – Python backend (FastAPI), návod v `backend/README.md`
 - `supabase/migrations/` – SQL migrácie databázy

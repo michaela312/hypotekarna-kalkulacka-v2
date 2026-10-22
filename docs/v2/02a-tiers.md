@@ -37,13 +37,13 @@ Všetko beží lokálne na `http://127.0.0.1:8000/` jedným príkazom (NFR-V2-08
 
 | Modul | Súbor | Robí | Nesmie |
 |-------|-------|------|--------|
-| F1 | `frontend/index.html` | Markup formulára, výsledkov, tlačidla a zoznamu | Obsahovať inline JS |
-| F2 | `frontend/styles.css` | Vzhľad, sumy sa nezalomia (FR-04) | – |
-| F3 | `frontend/js/main.js` | Debounce 300 ms, poradie požiadaviek, riadenie uloženia | Volať `fetch()` alebo `document` |
-| F4 | `frontend/js/view.js` | `readForm()`, `render()`, `renderList()`, `setSaveState()` | Volať `fetch()` |
-| F5 | `frontend/js/api.js` | `calculate()`, `saveCalculation()`, `listCalculations()` | Používať `document` |
+| F1 | `frontend/index.html`, markup | Markup formulára, výsledkov, tlačidla a zoznamu | – |
+| F2 | `frontend/index.html`, `<style>` | Vzhľad, sumy sa nezalomia (FR-04) | – |
+| F3 | `frontend/index.html`, skript, oddiel F3 | Debounce 300 ms, poradie požiadaviek, riadenie uloženia | Volať `fetch()` alebo `document` |
+| F4 | `frontend/index.html`, skript, oddiel F4 | `readForm()`, `render()`, `renderList()`, `setSaveState()` | Volať `fetch()` |
+| F5 | `frontend/index.html`, skript, oddiel F5 | `calculate()`, `saveCalculation()`, `listCalculations()` | Používať `document` |
 
-Načítanie: `<script type="module" src="js/main.js"></script>`. 0 balíkov z npm, 0 načítaní z CDN (NFR-V2-05).
+Skript je jeden `<script type="module">` v `index.html`. 0 balíkov z npm, 0 načítaní z CDN, 0 externých súborov (NFR-V2-05, AD-V2-13).
 
 ### 1.3 Väzba na DOM (F1 ↔ F4)
 
@@ -75,7 +75,7 @@ Polia vo formulári sú `<input type="text" inputmode="decimal">`, nie `type="nu
 | `unavailable` | `ApiError` z `calculate()` | predchádzajúce skryté | skryté | neaktívne |
 | `saving` | Po kliknutí na „Uložiť“, do odpovede | bez zmeny | bez zmeny | neaktívne (FR-10: 1 klik = najviac 1 záznam) |
 
-Pre stav `unavailable` nie je text vo FR. Návrh: „Výpočet je dočasne nedostupný. Skúste to znova.“ – doplniť do `01-functional.md` pri review (04).
+Text stavu `unavailable` je v `01-functional.md`, časť 2 (OQ-V2-04).
 
 ### 1.5 Tok v F3
 
@@ -111,7 +111,7 @@ refreshList():
 ### 1.6 Klient API (F5)
 
 ```js
-// frontend/js/api.js – F5, implementuje API-R1, API-R7
+// frontend/index.html, oddiel F5 – implementuje API-R1, API-R7
 const TIMEOUT_MS = 5000;
 
 /** @returns {Promise<{ok: true, status: number, body: any} | {error: 'network'|'timeout'|'storage'|'contract'}>} */
@@ -149,7 +149,7 @@ Typy, pravidlá API-R1 až API-R7 a HTTP kódy sú v `api-contract.md`. Táto č
 
 | Metóda a cesta | Požiadavka | Úspech | Chyby | Zapisuje do DB | Požiadavky |
 |----------------|------------|--------|-------|----------------|------------|
-| `POST /api/calculate` | `CalculationRequest` | 200 `CalculationResponse` | 422 kontrakt | áno, 1 riadok pri platnom vstupe, po odpovedi (AD-V2-14) | FR-01 až FR-09 |
+| `POST /api/calculate` | `CalculationRequest` | 200 `CalculationResponse` | 422 kontrakt | nie (AD-V2-15) | FR-01 až FR-09 |
 | `POST /api/calculations` | `CalculationRequest` | 201 `{ id, createdAt }` | 422 neplatný vstup alebo kontrakt, 503 | áno, 1 riadok | FR-10 |
 | `GET /api/calculations` | – | 200 `{ items: SavedCalculation[] }` (0 až 20) | 503 | nie | FR-11 |
 | `GET /api/health` | – | 200 `{ "status": "ok" }` | – | nie | NFR-V2-08 |
@@ -394,7 +394,7 @@ Prečo nie samostatné tabuľky pre vstupy, výsledky a históriu:
 | Alternatíva | Prečo nie vo V2 |
 |-------------|-----------------|
 | `inputs` + `results` (1:1) | Každý zápis by potreboval 2 inserty v transakcii, každé čítanie join. Vzťah je vždy 1:1. |
-| `user_history` | Používatelia neexistujú (OQ-V2-01, návrh: spoločný zoznam). Pridá sa pri EP-V2-03. |
+| `user_history` | Používatelia neexistujú (OQ-V2-01, rozhodnuté: spoločný zoznam). Pridá sa pri EP-V2-03. |
 | `calculation_extra_payments` | V2 má najviac 1 mimoriadnu splátku. Pridá sa pri EP-V2-01. |
 
 SQL migrácia je v `supabase/migrations/20261015120000_create_calculations.sql` (S1). Zhoduje sa so SQL v `02-architecture.md`, časť Data Model → V Supabase.
@@ -462,7 +462,7 @@ Bezplatný projekt sa po 7 dňoch bez aktivity pozastaví (R-V2-03). Obnoví sa 
 
 ### 4.5 Budúce rozšírenie o používateľov (EP-V2-03, nie je súčasťou V2)
 
-Iba náčrt pre prípad, že OQ-V2-01 sa rozhodne pre prihlásenie:
+Iba náčrt pre prípad, že sa neskôr pridá prihlásenie (OQ-V2-01 je vo V2 rozhodnutá: spoločný zoznam):
 
 ```sql
 -- 002_user_history.sql (NEPOUŽÍVA SA vo V2)
@@ -490,6 +490,6 @@ Presné kroky, verzie závislostí a commity určí `05-plan.md`. Odporúčané 
 
 | ID | Bod | Návrh |
 |----|-----|-------|
-| OQ-V2-04 | Text pre stav `unavailable` pri výpočte (1.4) chýba vo FR. | **Rozhodnuté (2026-10-15):** „Výpočet je dočasne nedostupný. Skúste to znova.“ s tlačidlom „Skúsiť znova“, výsledky sa skryjú. Doplniť do FR-05 V2 v review (04). |
-| OQ-V2-05 | `SavedExtra` a `SavedRecord` (3.2) chýbajú v `02-architecture.md`. | Prevziať do Data Model v `02-architecture.md` v review (04). |
-| OQ-V2-06 | Číslo `01` v názve tohto súboru sa prekrýva s `01-functional.md`. | Pri review (04) premenovať, napr. na `02a-tiers.md`, aby sedelo číselné poradie spracovania. |
+| OQ-V2-04 | Text pre stav `unavailable` pri výpočte (1.4) chýba vo FR. | **Rozhodnuté (2026-10-15):** „Výpočet je dočasne nedostupný. Skúste to znova.“ s tlačidlom „Skúsiť znova“, výsledky sa skryjú. Zapísané v `01-functional.md`, časť 2. |
+| OQ-V2-05 | `SavedExtra` a `SavedRecord` (3.2) chýbajú v `02-architecture.md`. | **Rozhodnuté (2026-10-22):** prevzaté do Data Model v `02-architecture.md` (krok 0 `05-plan.md`). |
+| OQ-V2-06 | Číslo `01` v názve tohto súboru sa prekrýva s `01-functional.md`. | **Rozhodnuté (2026-10-22, RP-05):** súbor je premenovaný na `02a-tiers.md`. |

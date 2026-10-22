@@ -64,7 +64,7 @@ Invarianty: `status: 'ok'` nikdy neobsahuje `errors` a `status: 'invalid'` nikdy
 
 ### `POST /api/calculate` – výpočet (FR-01 až FR-09)
 
-Volá sa 300 ms po poslednej zmene ľubovoľného poľa (AD-V2-02). Pri platnom vstupe uloží výpočet do tabuľky `calculations` po odoslaní odpovede (AD-V2-14). Odpoveď je rovnaká, či sa uloženie podarí alebo nie.
+Volá sa 300 ms po poslednej zmene ľubovoľného poľa (AD-V2-02). Do databázy nezapisuje; ukladá sa iba cez `POST /api/calculations` (AD-V2-15, v kóde od kroku 8 `05-plan.md`).
 
 Požiadavka:
 ```json

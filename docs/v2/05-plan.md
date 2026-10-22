@@ -9,7 +9,7 @@ Tento plán dokončuje prechod kalkulačky na 4 vrstvy s jednou zodpovednosťou:
 | 3. Backend (Python) | Parsovanie, validácia, výpočet splátky a mimoriadnej splátky, formát, texty, ukladanie cez rozhranie. | Nepozná DOM; výpočet (B1–B9) nepozná HTTP ani databázu (NFR-V2-03). | `backend/app/` |
 | 4. Supabase | Ukladá výpočty do tabuľky `calculations`. | Nepočíta. Prístup má iba backend (AD-V2-06). | `supabase/migrations/`, B13 |
 
-Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `02-architecture.md`, JSON `api-contract.md`, implementačné detaily `01-architecture-v2.md`. Tento dokument určuje iba **poradie, testy, kritériá hotovosti a commity**.
+Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `02-architecture.md`, JSON `api-contract.md`, implementačné detaily `02a-tiers.md`. Tento dokument určuje iba **poradie, testy, kritériá hotovosti a commity**.
 
 **Vzťah k 03 a 04:** CLAUDE.md predpisuje poradie 03 → 04 → 05. Tento plán vznikol skôr na výslovnú požiadavku používateľky (2026-10-22). Aby sa poradie nestratilo:
 - každý krok obsahuje zoznam testov s menami a ID požiadaviek, z ktorých sa dá `03-test-scenarios.md` V2 vytvoriť mechanicky (krok 13);
@@ -26,7 +26,7 @@ Zdroje pravdy sa nemenia: požiadavky `01-functional.md`, moduly a rozhodnutia `
 | Frontend | FR-01 až FR-05, debounce 300 ms, zahodenie staršej odpovede, timeout 5 s, stav `unavailable` (OQ-V2-04) | Polia IN-04 až IN-06, výsledky FR-06 až FR-08, chyby FR-09, tlačidlo FR-10, zoznam FR-11, Playwright e2e |
 | API | `POST /api/calculate` bez kľúča `extra`, `GET /api/health` | `extra` v požiadavke a odpovedi, `FieldKey` s `extraMonth`/`extraAmount`, `POST /api/calculations`, `GET /api/calculations`, 503 handler |
 | Backend | B1, B2–B5, B7–B9 pre IN-01 až IN-03 a FR-01 až FR-05; B12 `save`; B13 `save`; B14; B15 | B2 hranice IN-04/IN-05, B3 `validate_extra_against_loan`, B4 `balance_after`, B5 `round_down`, **B6**, B7 `format_rate`, **B7a**, B8 správy FR-09/FR-10/FR-11 a tvary slov, B9 s mimoriadnou splátkou, B12/B13 `list_latest` a stĺpce `extra_*` |
-| Supabase | Migrácia S1 (overená parserom `pglast`), klient s timeoutom 4 s | Projekt, spustená migrácia, `backend/.env`, ručný test 4.4 z `01-architecture-v2.md` |
+| Supabase | Migrácia S1 (overená parserom `pglast`), klient s timeoutom 4 s | Projekt, spustená migrácia, `backend/.env`, ručný test 4.4 z `02a-tiers.md` |
 
 Nesúlady v dokumentoch, ktoré rieši krok 0:
 - `02-architecture.md`, Stack: frontend „natívne ES moduly“ a tabuľka „Čo sa presúva z V1“ s `frontend/js/*.js` – neplatí od AD-V2-13 (jeden súbor).
@@ -38,15 +38,15 @@ Nesúlady v dokumentoch, ktoré rieši krok 0:
 
 ## 2. Rozhodnutia pred začiatkom
 
-Kroky, ktoré od rozhodnutia závisia, sú v stĺpci „Blokuje“.
+**Všetky rozhodnutia sú prijaté podľa návrhu (používateľka, 2026-10-22).** RP-01 je zapísané ako AD-V2-15 v `02-architecture.md`. Kroky, ktoré od rozhodnutia závisia, sú v stĺpci „Blokuje“.
 
 | ID | Otázka | Možnosti | Návrh | Blokuje |
 |----|--------|----------|-------|---------|
-| RP-01 | AD-V2-14 (automatické ukladanie každého platného výpočtu) a FR-10 (tlačidlo „Uložiť výpočet“) sa vylučujú. Pri písaní vzniká 1 riadok pri každej pauze ≥ 300 ms, takže zoznam FR-11 (20 riadkov) zaplnia rozpísané hodnoty. | **A** Vrátiť AD-V2-07: ukladá sa iba po kliknutí. **B** Ponechať AD-V2-14, FR-10 zrušiť. **C** Ponechať oboje, automatické ukladanie iba pri zmene hodnôt. | **A.** FR-10 a FR-11 tak platia bez zmeny a 1 klik = 1 riadok je testovateľný. Pri B treba prepísať FR-10, pri C pribudne stav v backende. | 9, 11 |
-| RP-02 | OQ-V2-01: zoznam spoločný, alebo s prihlásením? | Spoločný / Supabase Auth | Spoločný (EP-V2-03 zostane mimo V2). | 8, 9 |
-| RP-03 | OQ-V2-03: predvolený režim IN-06. | Kratšia doba / Nižšia splátka | Kratšia doba. | 10 |
-| RP-04 | Nástroj pre e2e. | `@playwright/test` (Node.js v24.20.0 je nainštalovaný) / `pytest-playwright` | `@playwright/test`, ako určuje 02 Stack. `package.json` iba s `devDependencies` v koreni repozitára. | 12 |
-| RP-05 | OQ-V2-06: premenovať `01-architecture-v2.md`? | Áno → `02a-tiers.md` / nie | Áno. | 0 |
+| RP-01 | AD-V2-14 (automatické ukladanie každého platného výpočtu) a FR-10 (tlačidlo „Uložiť výpočet“) sa vylučujú. Pri písaní vzniká 1 riadok pri každej pauze ≥ 300 ms, takže zoznam FR-11 (20 riadkov) zaplnia rozpísané hodnoty. | **A** Vrátiť AD-V2-07: ukladá sa iba po kliknutí. **B** Ponechať AD-V2-14, FR-10 zrušiť. **C** Ponechať oboje, automatické ukladanie iba pri zmene hodnôt. | **Rozhodnuté: A** (AD-V2-15). FR-10 a FR-11 tak platia bez zmeny a 1 klik = 1 riadok je testovateľný. Pri B treba prepísať FR-10, pri C pribudne stav v backende. | 8, 10 |
+| RP-02 | OQ-V2-01: zoznam spoločný, alebo s prihlásením? | Spoločný / Supabase Auth | **Rozhodnuté:** spoločný (EP-V2-03 zostane mimo V2). | 7, 8 |
+| RP-03 | OQ-V2-03: predvolený režim IN-06. | Kratšia doba / Nižšia splátka | **Rozhodnuté:** Kratšia doba. | 9 |
+| RP-04 | Nástroj pre e2e. | `@playwright/test` (Node.js v24.20.0 je nainštalovaný) / `pytest-playwright` | **Rozhodnuté:** `@playwright/test`, ako určuje 02 Stack. `package.json` iba s `devDependencies` v koreni repozitára. | 11 |
+| RP-05 | OQ-V2-06: premenovať `02a-tiers.md`? | Áno → `02a-tiers.md` / nie | **Rozhodnuté:** áno, premenované v kroku 0. | 0 |
 
 ---
 
@@ -115,7 +115,7 @@ Pravidlá pre každý krok:
 |---|---|
 | **Vrstva** | 3. Backend (jadro) |
 | **Požiadavky** | FR-01 až FR-09 end-to-end, DR-04, DR-10, FR-10 (`SavedValues`), NFR-V2-02 |
-| **Zmeny** | B9 podľa tabuľky 3.2 v `01-architecture-v2.md` (kroky 1–8). `Results.extra`, `SavedExtra` v `SavedValues`. Horná hranica IN-04 je 359, ak je IN-03 neplatný. Pri chybe IN-01 až IN-03 a súčasne neplatnom IN-05 správa „…od 100 do 1 000 000 €.“ |
+| **Zmeny** | B9 podľa tabuľky 3.2 v `02a-tiers.md` (kroky 1–8). `Results.extra`, `SavedExtra` v `SavedValues`. Horná hranica IN-04 je 359, ak je IN-03 neplatný. Pri chybe IN-01 až IN-03 a súčasne neplatnom IN-05 správa „…od 100 do 1 000 000 €.“ |
 | **Testy (≥ 18)** | `test_dr04_akceptacia[1..4]` (zostávajú); `test_dr10_akceptacia[1..8]` – texty presne podľa tabuliek DR-10; `test_fr09_tabulka[1..5]` – každý riadok tabuľky FR-09; `test_fr09_ziadne_vysledky_pri_chybe`; `test_fr10_saved_extra_zaokruhlene` (riadok 1 DR-10 → `interest_saved = Decimal('18797.02')`); `test_nfr_v2_02` (K = 1, 30 rokov, medián zo 100 ≤ 50 ms). |
 | **Hotové, keď** | Výpočet (B1–B9) je úplný; `test_architecture.py` potvrdí 0 importov `fastapi`, `pydantic`, `supabase`, `app.api`, `app.db` v B1–B9 (NFR-V2-03). |
 | **Commit** | `Backend V2: B9 s mimoriadnou splátkou, akceptačné testy DR-10` |
@@ -128,7 +128,7 @@ Pravidlá pre každý krok:
 | **Požiadavky** | API-R2, API-R3, API-R5, API-R6, FR-06 až FR-09 |
 | **Zmeny** | B10: `ExtraRequest {month, amount, mode: Literal[...]}`, `ExtraResult` (2 tvary podľa `mode`), `FieldKey` + `extraMonth`, `extraAmount`. B11 odovzdá `extra` do `RawInput` a prevedie kľúče chýb na camelCase. **V tom istom commite** F4 `readForm()` posiela `extra: {month: '', amount: '', mode: 'shorter_term'}` – inak by frontend po tomto kroku dostával 422, lebo `extra` je povinný kľúč (API-R6). |
 | **Testy (≥ 10)** | `test_api_priklad_ok_kratsia_doba` a `test_api_priklad_ok_nizsia_splatka` (presné JSON z `api-contract.md`); `test_api_extra_null_ked_prazdne`; `test_api_invalid_extra_amount`; `test_api_422_bez_extra`; `test_api_422_neznamy_mode`; `test_api_422_extra_navyse_kluc`; `test_api_ok_nema_errors` a `test_api_invalid_nema_results` (invarianty); `test_frontend_posiela_extra` (statický test v `test_frontend.py`). |
-| **Hotové, keď** | Každý JSON príklad z `api-contract.md` a z časti 2.2 `01-architecture-v2.md` má 1 test; prehliadač na `http://127.0.0.1:8000/` počíta ako pred krokom. |
+| **Hotové, keď** | Každý JSON príklad z `api-contract.md` a z časti 2.2 `02a-tiers.md` má 1 test; prehliadač na `http://127.0.0.1:8000/` počíta ako pred krokom. |
 | **Commit** | `API V2: kľúč extra v POST /api/calculate (B10, B11)` |
 
 ### Krok 7 – Supabase vrstva v kóde: čítanie a stĺpce `extra_*` (B12, B13)
@@ -147,8 +147,8 @@ Pravidlá pre každý krok:
 |---|---|
 | **Vrstva** | 2. API + 3. Backend |
 | **Požiadavky** | FR-10, FR-11, API-R5, API-R6, AD-V2-12; podľa RP-01 |
-| **Zmeny** | `tzdata` do `requirements.txt` s presnou verziou. B7a `format_datetime(utc)` → `"15. 10. 2026 14:05"` v Europe/Bratislava. B10: `SaveResponse`, `SavedCalculation`, `CalculationList`, `StorageErrorBody`. B11: `POST /api/calculations` (výpočet znova, 201 / 422 / 503) a `GET /api/calculations` (200 / 503). B14: 1 `exception_handler(StorageError)` → 503 `{"error": "storage_unavailable"}`. Pri RP-01 = A: z `POST /api/calculate` odstrániť `BackgroundTasks` a zapísať AD-V2-07 späť ako platné. |
-| **Testy (≥ 12)** | `test_b7a_leto` (UTC 12:05 v júli → 14:05) a `test_b7a_zima` (UTC 13:05 v januári → 14:05); `test_b7a_format_bez_nul` (`5. 1. 2026`); `test_post_calculations_201`; `test_post_calculations_ulozi_1_zaznam`; `test_post_calculations_422_neplatny_vstup`; `test_post_calculations_503`; `test_post_calculations_ignoruje_vysledky_klienta` (AD-V2-12: neznámy kľúč → 422); `test_get_calculations_prazdny`; `test_get_calculations_20_z_25`; `test_get_calculations_tvar_savedcalculation`; `test_get_calculations_503`; pri RP-01 = A `test_calculate_neuklada`. |
+| **Zmeny** | `tzdata` do `requirements.txt` s presnou verziou. B7a `format_datetime(utc)` → `"15. 10. 2026 14:05"` v Europe/Bratislava. B10: `SaveResponse`, `SavedCalculation`, `CalculationList`, `StorageErrorBody`. B11: `POST /api/calculations` (výpočet znova, 201 / 422 / 503) a `GET /api/calculations` (200 / 503). B14: 1 `exception_handler(StorageError)` → 503 `{"error": "storage_unavailable"}`. Podľa AD-V2-15 z `POST /api/calculate` odstrániť `BackgroundTasks`; `README.md` a `backend/README.md` už nespomínajú automatické ukladanie. |
+| **Testy (≥ 12)** | `test_b7a_leto` (UTC 12:05 v júli → 14:05) a `test_b7a_zima` (UTC 13:05 v januári → 14:05); `test_b7a_format_bez_nul` (`5. 1. 2026`); `test_post_calculations_201`; `test_post_calculations_ulozi_1_zaznam`; `test_post_calculations_422_neplatny_vstup`; `test_post_calculations_503`; `test_post_calculations_ignoruje_vysledky_klienta` (AD-V2-12: neznámy kľúč → 422); `test_get_calculations_prazdny`; `test_get_calculations_20_z_25`; `test_get_calculations_tvar_savedcalculation`; `test_get_calculations_503`; `test_calculate_neuklada` (AD-V2-15). |
 | **Hotové, keď** | `GET /docs` ukazuje 4 endpointy; každý riadok tabuliek kódov v `api-contract.md` má 1 test. |
 | **Commit** | `API V2: POST a GET /api/calculations, B7a, 503 handler` |
 
@@ -158,7 +158,7 @@ Pravidlá pre každý krok:
 |---|---|
 | **Vrstva** | 1. Frontend |
 | **Požiadavky** | FR-06 až FR-09 (zobrazenie), IN-04 až IN-06, NFR-V2-04, NFR-V2-05 |
-| **Zmeny** | V `frontend/index.html`: `<fieldset>` „Mimoriadna splátka“ s `<legend>`, IN-04 a IN-05 ako `type="text" inputmode="decimal"`, 2× `radio` IN-06 (predvolené podľa RP-03), blok výsledkov `extra` (iba ak `results.extra !== null`), chyby pri `extraMonth` a `extraAmount` s `aria-invalid` a `aria-describedby`. Zmena režimu spustí výpočet (udalosť `change`). Atribúty `data-*` podľa časti 1.3 `01-architecture-v2.md`. |
+| **Zmeny** | V `frontend/index.html`: `<fieldset>` „Mimoriadna splátka“ s `<legend>`, IN-04 a IN-05 ako `type="text" inputmode="decimal"`, 2× `radio` IN-06 (predvolené podľa RP-03), blok výsledkov `extra` (iba ak `results.extra !== null`), chyby pri `extraMonth` a `extraAmount` s `aria-invalid` a `aria-describedby`. Zmena režimu spustí výpočet (udalosť `change`). Atribúty `data-*` podľa časti 1.3 `02a-tiers.md`. |
 | **Testy (≥ 6, statické)** | `test_nfr_v2_04_fieldset_legend`; `test_nfr_v2_04_kazdy_vstup_ma_label` (5 polí + 2 radio); `test_nfr_v2_05_ziadne_cisla_hranic` (0 výskytov `359`, `100`, `1000000` v skripte); `test_nfr_v2_05_ziadne_externe_zdroje`; `test_frontend_data_atributy_extra`; `test_frontend_predvoleny_rezim`. |
 | **Ručne v prehliadači** | 8 riadkov DR-10 zadať a porovnať texty; 375 px bez vodorovného posunu; svetlý aj tmavý režim. |
 | **Commit** | `Frontend V2, 2. časť: mimoriadna splátka (FR-06 až FR-09)` |
@@ -169,7 +169,7 @@ Pravidlá pre každý krok:
 |---|---|
 | **Vrstva** | 1. Frontend |
 | **Požiadavky** | FR-10, FR-11, API-R7, NFR-V2-04 |
-| **Zmeny** | F5: `saveCalculation`, `listCalculations`, mapovanie 201/503/422/sieť/timeout podľa 1.6 `01-architecture-v2.md`. F3: `refreshList()` pri načítaní a po uložení, stav `saving`. F4: tlačidlo aktívne iba v stave `ok`, správy FR-10 v `role="status"`, tabuľka 20 riadkov, prázdny stav, chyba načítania. Zmena `test_frontend_iba_jedno_volanie_fetch`: `fetch(` stále iba v oddiele F5, povolené cesty sú 3. |
+| **Zmeny** | F5: `saveCalculation`, `listCalculations`, mapovanie 201/503/422/sieť/timeout podľa 1.6 `02a-tiers.md`. F3: `refreshList()` pri načítaní a po uložení, stav `saving`. F4: tlačidlo aktívne iba v stave `ok`, správy FR-10 v `role="status"`, tabuľka 20 riadkov, prázdny stav, chyba načítania. Zmena `test_frontend_iba_jedno_volanie_fetch`: `fetch(` stále iba v oddiele F5, povolené cesty sú 3. |
 | **Testy (≥ 4, statické)** | `test_frontend_fetch_iba_v_f5`; `test_frontend_fetch_iba_3_cesty_api`; `test_nfr_v2_04_save_role_status`; `test_frontend_data_atributy_zoznam`. |
 | **Commit** | `Frontend V2, 3. časť: uloženie výpočtu a zoznam (FR-10, FR-11)` |
 
@@ -191,7 +191,7 @@ Pravidlá pre každý krok:
 | **Vrstva** | 4. Supabase |
 | **Požiadavky** | FR-10, FR-11, NFR-V2-06, NFR-V2-07, AD-V2-06 |
 | **Kto** | Založenie účtu a projektu a skopírovanie kľúča robí **používateľka** (Claude nezakladá účty ani nevkladá kľúče). Claude potom spustí overenie a zapíše výsledok. |
-| **Postup** | Tabuľka 4.4 v `01-architecture-v2.md`, kroky 1–5: projekt `eu-central-1`, migrácia S1 v SQL Editore, `backend/.env`, 1 uloženie cez UI, kontrola anon kľúča. Navyše: 21 uložení → `GET /api/calculations` vráti 20. |
+| **Postup** | Tabuľka 4.4 v `02a-tiers.md`, kroky 1–5: projekt `eu-central-1`, migrácia S1 v SQL Editore, `backend/.env`, 1 uloženie cez UI, kontrola anon kľúča. Navyše: 21 uložení → `GET /api/calculations` vráti 20. |
 | **Hotové, keď** | V tabuľke je riadok s `monthly_payment = 477.42`; riadok s mimoriadnou splátkou má 9 stĺpcov `extra_*` vyplnených podľa riadku 1 DR-10; anon kľúč dostane `[]`; uloženie aj zoznam ≤ 2 s (NFR-V2-07); `git status` neukazuje `.env`; `test_secrets.py` prechádza. |
 | **Commit** | `Supabase V2: overenie proti skutočnej databáze` (iba `handoff.md` a README, žiadne tajné údaje) |
 

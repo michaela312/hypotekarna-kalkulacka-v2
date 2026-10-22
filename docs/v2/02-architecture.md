@@ -11,7 +11,7 @@ Používateľ ─► frontend/ (HTML + JS) ──JSON──► API (docs/v2/api-
 
 | Časť | Voľba | Dôvod |
 |------|-------|-------|
-| Frontend | Čisté HTML + CSS + JavaScript (ES2022, natívne ES moduly), bez frameworku a bez build kroku | Má iba formulár, tlačidlo a dve oblasti s výsledkami. 0 závislostí za behu (NFR-V2-05). |
+| Frontend | Jeden súbor `frontend/index.html`: HTML, vložené CSS a JavaScript (ES2022, `<script type="module">`), bez frameworku a bez build kroku (AD-V2-13) | Má iba formulár, tlačidlo a dve oblasti s výsledkami. 0 závislostí za behu (NFR-V2-05). |
 | API | REST + JSON, kontrakt v `docs/v2/api-contract.md` a v Pydantic modeloch (B10) | FastAPI z Pydantic modelov generuje OpenAPI, takže dokumentácia a kód sa kontrolujú navzájom. |
 | Backend | Python ≥ 3.12, FastAPI, Uvicorn | Požiadavka zadania. `decimal` zo štandardnej knižnice vie zaokrúhliť polovicu nahor (AD-V2-10). |
 | Databáza | Supabase (PostgreSQL), klient `supabase` pre Python | Požiadavka zadania. Prístup má iba backend (AD-V2-06). |
@@ -63,9 +63,9 @@ docs/
 | V1 | V2 | Zmena |
 |----|----|-------|
 | M1 až M8 (`src/input`, `src/domain`, `src/format`, `src/text`, `src/app`) | B1 až B9 v `backend/app/` | Prepis z JavaScriptu do Pythonu. Pravidlá, rozhrania a invarianty zostávajú. Rozšírenie o IN-04 až IN-06 a FR-06 až FR-11. |
-| M9 `src/ui/view.js` | F4 `frontend/js/view.js` | Pribudnú polia mimoriadnej splátky, tlačidlo „Uložiť výpočet“ a zoznam uložených výpočtov. |
-| M10 `src/main.js` | F3 `frontend/js/main.js` | Namiesto volania M8 volá F5 (API) s debounce 300 ms. |
-| M11 `index.html`, M12 `styles.css` | F1, F2 vo `frontend/` | Nové polia a zoznam. |
+| M9 `src/ui/view.js` | F4, oddiel v `frontend/index.html` | Pribudnú polia mimoriadnej splátky, tlačidlo „Uložiť výpočet“ a zoznam uložených výpočtov. |
+| M10 `src/main.js` | F3, oddiel v `frontend/index.html` | Namiesto volania M8 volá F5 (API) s debounce 300 ms. |
+| M11 `index.html`, M12 `styles.css` | F1, F2 v `frontend/index.html` | Nové polia a zoznam. |
 | Dátový model z 02 V1 (`RawInput`, `CalculationResult`) | B10 a `api-contract.md` | Z interných typov sa stáva verejný kontrakt. |
 | EP-03 (mimoriadne splátky), EP-08 (ukladanie) | B6, B12, B13, S1 | Body rozšírenia z V1 sa realizujú. EP-08 ukladá do databázy namiesto URL. |
 
@@ -308,7 +308,7 @@ Pravidlá:
 4. Iba B13 (`app/db/supabase_*.py`) importuje `supabase`. Iba B15 číta premenné prostredia.
 5. Frontend je jeden súbor bez importov a externých zdrojov (AD-V2-13). V skripte je `fetch()` iba v oddiele F5. Overuje `backend/tests/test_frontend.py`.
 6. Cyklické závislosti nie sú povolené.
-7. Pravidlá 1, 2, 4 a 5 overí test, ktorý prehľadá importy v `backend/app/` a výskyty `fetch(` a `document` vo `frontend/js/`.
+7. Pravidlá 1, 2, 4 a 5 overí test, ktorý prehľadá importy v `backend/app/` a výskyty `fetch(` a `document` v skripte `frontend/index.html` (`backend/tests/test_frontend.py`).
 
 ## Data Model
 
@@ -343,6 +343,19 @@ class SavedValues:                    # výstup B9 pre B12, zaokrúhlené na 0,0
     amount: Decimal; rate: Decimal; years: int
     monthly_payment: Decimal; total_paid: Decimal; total_interest: Decimal
     extra: SavedExtra | None
+
+@dataclass
+class SavedExtra:                     # časť SavedValues, zaokrúhlené na 0,01 € (AD-V2-08), OQ-V2-05
+    month: int; amount: Decimal; mode: Mode
+    payments: int | None              # iba shorter_term (FR-06)
+    last_payment: Decimal | None      # iba shorter_term (FR-06)
+    new_monthly: Decimal | None       # iba lower_payment (FR-07)
+    total_paid: Decimal; total_interest: Decimal; interest_saved: Decimal
+
+@dataclass
+class SavedRecord:                    # výstup B12/B13, OQ-V2-05
+    id: str; created_at: datetime     # UTC
+    values: SavedValues
 ```
 
 Tok dát:
@@ -398,7 +411,7 @@ Invarianty:
 - Text sa na číslo prevádza iba v B1. Vo frontende sa neprevádza vôbec.
 - Zaokrúhľuje sa iba v B5 (cez B7 alebo pri `SavedValues`). `LoanResult` a `ExtraResultRaw` sú vždy nezaokrúhlené (DR-03).
 - `status: 'invalid'` nikdy neobsahuje výsledky a `status: 'ok'` nikdy neobsahuje chyby (FR-05, FR-09).
-- Každý platný výpočet z `POST /api/calculate` sa uloží ako nový riadok, až po odoslaní odpovede. Chyba databázy výpočet nepokazí (AD-V2-14).
+- Ukladá sa iba po kliknutí na „Uložiť výpočet“: 1 klik = najviac 1 riadok. `POST /api/calculate` do databázy nezapisuje (AD-V2-15).
 - Uložený záznam sa už neprepočítava. Ak sa neskôr zmení vzorec, staré záznamy zostanú také, ako boli zobrazené (AD-V2-08).
 
 ## Extension Points & Decisions
@@ -438,14 +451,15 @@ Nahrádzajú NFR-01 až NFR-03 z V1. NFR-04 V1 platí ďalej ako súčasť NFR-V
 | AD-V2-04 | Jeden endpoint `POST /api/calculate` pre základný výpočet aj mimoriadnu splátku (namiesto dvoch endpointov z prvého návrhu). | Mimoriadna splátka potrebuje tie isté IN-01 až IN-03. Pri dvoch endpointoch by frontend posielal vstupy dvakrát a musel by spájať chyby z dvoch odpovedí, čo je logika vo frontende. |
 | AD-V2-05 | Backend servíruje `frontend/` cez `StaticFiles`. | Frontend aj API majú rovnaký pôvod, takže netreba CORS a stačí jeden príkaz na spustenie. Kompromis: frontend sa nedá nasadiť samostatne bez EP-V2-05. |
 | AD-V2-06 | K Supabase pristupuje iba backend kľúčom `service_role`. RLS je zapnuté bez politík. | Kľúč nikdy nie je v prehliadači. Ani anon kľúč nemá prístup k tabuľke. |
-| AD-V2-07 | **Nahradené AD-V2-14.** ~~Ukladá sa iba po kliknutí na „Uložiť výpočet“.~~ | Pri automatickom ukladaní by vznikol záznam pri každom prepočte, aj s polovične napísanými hodnotami. |
+| AD-V2-07 | Ukladá sa iba po kliknutí na „Uložiť výpočet“. Dočasne nahradené AD-V2-14, obnovené AD-V2-15. | Pri automatickom ukladaní by vznikol záznam pri každom prepočte, aj s polovične napísanými hodnotami. |
 | AD-V2-08 | Ukladajú sa platné vstupy ako čísla a výsledky zaokrúhlené na 0,01 €. Pri čítaní sa neprepočítavajú. | Záznam ukazuje to, čo videl používateľ. Kompromis: surové texty sa neukladajú (pozri EP-V2-04). |
 | AD-V2-09 | Úložisko je za rozhraním `CalculationRepository`. Testy a e2e používajú `InMemoryRepository`. | Testy nepotrebujú internet ani účet Supabase. Kompromis: B13 sa overí iba ručným testom proti skutočnej databáze. |
 | AD-V2-10 | Zaokrúhľuje sa cez `Decimal(repr(x))` a `ROUND_HALF_UP`. | `repr` dáva najkratší zápis floatu rovnako ako JavaScript v V1, takže `1.005` → `1.01`. `round()` v Pythone zaokrúhľuje na párne číslo. |
 | AD-V2-11 | Zostatok sa počas splácania nezaokrúhľuje (DR-03 platí aj pre DR-05). | Rovnaké pravidlo ako vo V1. Kompromis: výsledky sa môžu od banky líšiť o niekoľko centov (poznámka v časti 5 `01-functional.md`). |
 | AD-V2-12 | Backend overí výpočet znova aj pri ukladaní a neverí výsledkom z frontendu. | Do databázy sa nedostane výsledok, ktorý backend nevypočítal. |
-| AD-V2-14 | **Nahrádza AD-V2-07:** `POST /api/calculate` uloží každý platný výpočet do `calculations` automaticky. Ukladá sa v `BackgroundTasks` až po odoslaní odpovede; `StorageError` sa iba zapíše do logu. | Rozhodnutie používateľky (2026-10-15). Odpoveď nečaká na Supabase (overené: 28 ms pri nedostupnej Supabase) a výpočet funguje aj bez databázy. Kompromis: pri písaní vzniká riadok pri každej pauze ≥ 300 ms s platnými hodnotami, aj pri rovnakých hodnotách; tlačidlo „Uložiť výpočet“ (FR-10) tým stráca zmysel. Riešenie, ak to bude prekážať: ukladať iba pri zmene hodnôt alebo vrátiť AD-V2-07. |
+| AD-V2-14 | **Nahradené AD-V2-15.** Pôvodne nahrádzalo AD-V2-07: `POST /api/calculate` uloží každý platný výpočet do `calculations` automaticky. Ukladá sa v `BackgroundTasks` až po odoslaní odpovede; `StorageError` sa iba zapíše do logu. | Rozhodnutie používateľky (2026-10-15). Odpoveď nečaká na Supabase (overené: 28 ms pri nedostupnej Supabase) a výpočet funguje aj bez databázy. Kompromis: pri písaní vzniká riadok pri každej pauze ≥ 300 ms s platnými hodnotami, aj pri rovnakých hodnotách; tlačidlo „Uložiť výpočet“ (FR-10) tým stráca zmysel. Riešenie, ak to bude prekážať: ukladať iba pri zmene hodnôt alebo vrátiť AD-V2-07. |
 | AD-V2-13 | **Mení štruktúru F1–F5:** frontend je jeden súbor `frontend/index.html` s vloženým CSS a JS. F1 až F5 sú oddiely v ňom, nie samostatné súbory. | Rozhodnutie používateľky (2026-10-15). Jeden súbor sa ľahko prečíta a nič nenačítava. Kompromis: oddelenie F3/F4/F5 drží iba poradie a komentáre v skripte, nie hranice modulov; pravidlo 5 overuje statický test. |
+| AD-V2-15 | **Nahrádza AD-V2-14, obnovuje AD-V2-07:** výpočet sa ukladá iba cez `POST /api/calculations` po kliknutí na „Uložiť výpočet“. `POST /api/calculate` do databázy nezapisuje. V kóde od kroku 8 `05-plan.md`. | Rozhodnutie používateľky (2026-10-22, RP-01). Automatické ukladanie vytváralo riadok pri každej pauze ≥ 300 ms, zoznam FR-11 (20 riadkov) by zaplnili rozpísané hodnoty a tlačidlo FR-10 by nemalo zmysel. |
 
 ### Riziká
 
@@ -465,4 +479,4 @@ Nahrádzajú NFR-01 až NFR-03 z V1. NFR-04 V1 platí ďalej ako súčasť NFR-V
 | K-02 | Každý modul sa dá opísať jednou vetou. | Splnené (22/22) | Riadky „Jednou vetou“, pri prevzatých moduloch platí veta z V1. |
 | K-03 | Výpočet nezávisí od UI, API ani databázy. | Splnené | Pravidlo 1 v Dependency Direction a NFR-V2-03. Overí ho test importov (pravidlo 7). |
 | K-04 | Kľúč k databáze nie je vo frontende. | Splnené | AD-V2-06, NFR-V2-06, pravidlo 4 v Dependency Direction. |
-| K-05 | Otvorené otázky sú zapísané. | Splnené | OQ-V2-01 až OQ-V2-03 v `01-functional.md`. |
+| K-05 | Otvorené otázky sú zapísané. | Splnené | OQ-V2-01 až OQ-V2-03 v `01-functional.md` (OQ-V2-01 a OQ-V2-03 rozhodnuté 2026-10-22). |

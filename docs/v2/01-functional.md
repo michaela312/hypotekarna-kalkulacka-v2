@@ -23,6 +23,8 @@ Tieto požiadavky platia ďalej presne tak, ako sú v `docs/v1/01-functional.md`
 | IN-01 až IN-03 | Výška úveru, sadzba, doba splácania | `docs/v1/01-functional.md`, časť 3 |
 | DR-01 až DR-04 | Anuitný vzorec, sadzba 0 %, zaokrúhľovanie, referenčné príklady | `docs/v1/01-functional.md`, časť 4 |
 
+**Doplnenie FR-05 vo V2 (OQ-V2-04):** ak backend neodpovie (chyba siete alebo odpoveď nepríde do 5 s), skryjú sa výsledky a zobrazí sa „Výpočet je dočasne nedostupný. Skúste to znova.“ s tlačidlom „Skúsiť znova“, ktoré výpočet zopakuje.
+
 Zmena oproti V1 je iba v tom, **kde** sa požiadavky plnia (backend namiesto prehliadača). Táto zmena je opísaná v `02-architecture.md`.
 
 ## 3. Nové funkčné požiadavky
@@ -156,7 +158,7 @@ Poznámka: banka zaokrúhľuje každú splátku na centy, kalkulačka nie (DR-03
 | Poplatok za mimoriadnu splátku | Závisí od zmluvy a dátumu fixácie. |
 | Zobrazenie splátkového kalendára | Backend ho počíta interne (DR-05), ale nezobrazuje. |
 | Úprava, mazanie a otvorenie uloženého výpočtu vo formulári | V2 iba ukladá a zobrazuje zoznam. |
-| Prihlásenie používateľov | Pozri OQ-V2-01. |
+| Prihlásenie používateľov | Zoznam je spoločný (OQ-V2-01). Rozšírenie je EP-V2-03. |
 | Nasadenie na internet | V2 beží lokálne (pozri NFR-08 v `02-architecture.md`). |
 | Ostatné odložené funkcie z V1 (grafy, RPMN, fixácie, bonita, LTV, viac mien, jazyky) | Bez zmeny oproti `docs/v1/01-functional.md`, časť 5. |
 
@@ -164,6 +166,6 @@ Poznámka: banka zaokrúhľuje každú splátku na centy, kalkulačka nie (DR-03
 
 | ID | Otázka | Návrh | Kedy rozhodnúť |
 |----|--------|-------|----------------|
-| OQ-V2-01 | Má byť zoznam uložených výpočtov spoločný pre všetkých, alebo treba prihlásenie (Supabase Auth) a každý vidí iba svoje výpočty? | Spoločný. Neukladajú sa žiadne osobné údaje, iba čísla. | Pred `03-test-scenarios.md` V2. |
+| OQ-V2-01 | Má byť zoznam uložených výpočtov spoločný pre všetkých, alebo treba prihlásenie (Supabase Auth) a každý vidí iba svoje výpočty? | **Rozhodnuté (2026-10-22, RP-02):** spoločný. Neukladajú sa žiadne osobné údaje, iba čísla. | – |
 | OQ-V2-02 | Nahrádza V2 realizáciu V1 (kroky 0 až 14 v `docs/v1/05-plan.md`) úplne? | Áno. Dokumenty V1 zostanú ako história a FR, IN a DR z V1 sa prevezmú (časť 2). | Pred `05-plan.md` V2. |
-| OQ-V2-03 | Je „Kratšia doba“ správny predvolený režim? | Áno, lebo ušetrí viac úroku (v príklade 18 797,02 € vs. 6 911,88 €). | V review (04) V2. |
+| OQ-V2-03 | Je „Kratšia doba“ správny predvolený režim? | **Rozhodnuté (2026-10-22, RP-03):** áno, lebo ušetrí viac úroku (v príklade 18 797,02 € vs. 6 911,88 €). | – |

@@ -16,7 +16,7 @@
   - pravidlá závislostí, dátový model a SQL tabuľky `calculations`;
   - NFR-V2-01 až NFR-V2-08, rozhodnutia AD-V2-01 až AD-V2-12 a riziká R-V2-01 až R-V2-05.
 - Hotové: `docs/v2/api-contract.md` – endpointy `POST /api/calculate`, `POST /api/calculations`, `GET /api/calculations` a `GET /api/health`, pravidlá API-R1 až API-R7.
-- Hotové: `docs/v2/01-architecture-v2.md` – implementačný pohľad po 4 vrstvách (frontend, API, backend, Supabase): atribúty DOM a stavy UI, kompletné JSON príklady vrátane 422, kostra Pydantic modelov B10, endpointy B11, pripojenie Supabase s timeoutom 4 s, mapovanie 17 stĺpcov, postup založenia projektu. Nové otvorené body OQ-V2-04 až OQ-V2-06.
+- Hotové: `docs/v2/02a-tiers.md` (pôvodne `01-architecture-v2.md`) – implementačný pohľad po 4 vrstvách (frontend, API, backend, Supabase): atribúty DOM a stavy UI, kompletné JSON príklady vrátane 422, kostra Pydantic modelov B10, endpointy B11, pripojenie Supabase s timeoutom 4 s, mapovanie 17 stĺpcov, postup založenia projektu. Nové otvorené body OQ-V2-04 až OQ-V2-06.
 - Oproti prvému návrhu v chate je jeden endpoint pre výpočet aj mimoriadnu splátku namiesto dvoch (AD-V2-04).
 - **Hotové: backend V2, 1. časť** (`backend/`, Python 3.13, FastAPI 0.143.1):
   - moduly B1–B5, B7–B11, B14 podľa `02-architecture.md`; výpočet prenesený zo špecifikácie V1 (DR-01 až DR-04), lebo JS kód V1 nikdy nevznikol;
@@ -31,7 +31,7 @@
   - B13 (časť) `backend/app/db/supabase_client.py` – klient s timeoutom 4 s; zatiaľ ho nič nevolá;
   - návod na nastavenie Supabase a premenných v `README.md`;
   - 160 testov prechádza (nové: config, klient bez siete, NFR-V2-06, migrácia, pravidlo 4 závislostí).
-  - Zmena oproti 02: migrácia je v `supabase/migrations/` namiesto `backend/db/migrations/` (požiadavka používateľky, 02 a 01-architecture-v2 upravené).
+  - Zmena oproti 02: migrácia je v `supabase/migrations/` namiesto `backend/db/migrations/` (požiadavka používateľky, 02 a 02a-tiers upravené).
 - **Hotové: frontend V2, 1. časť** – `frontend/index.html` (jeden súbor, AD-V2-13), FR-01 až FR-05:
   - rozhodnutia používateľky: jeden HTML súbor, čistý minimalistický vzhľad (svetlý aj tmavý režim, mobil), výpočet 300 ms po písaní, pri nedostupnom backende správa a „Skúsiť znova“ (OQ-V2-04), zatiaľ iba základný výpočet;
   - overené v prehliadači: predvyplnené hodnoty, 2 chyby naraz, 6 rýchlych zmien = 1 požiadavka, staršia odpoveď sa zahodí, chyba siete, timeout 5 s, obnovenie, 375 px bez vodorovného posunu;
@@ -49,11 +49,12 @@
 - Odchýlka od CLAUDE.md (pravidlo 1): kód vznikol pred `03` až `05` V2 na výslovnú požiadavku používateľky.
 - Python nie je v PATH: `%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, venv v `backend/.venv`.
 
+- **Hotové: krok 0 `05-plan.md`** (2026-10-22) – používateľka prijala RP-01 až RP-05 podľa návrhu. Zapísané: AD-V2-15 (ukladá sa iba po kliknutí, nahrádza AD-V2-14; v kóde až v kroku 8, dovtedy `POST /api/calculate` ešte ukladá automaticky), OQ-V2-01 a OQ-V2-03 rozhodnuté, text OQ-V2-04 v 01, `SavedExtra` a `SavedRecord` v 02, `01-architecture-v2.md` premenovaný na `02a-tiers.md`, odkazy na `frontend/js/` opravené podľa AD-V2-13.
+
 ### Ďalšie kroky V2
-1. Rozhodnúť RP-01 až RP-05 v `05-plan.md`, časť 2 (najdôležitejšie RP-01: automatické ukladanie AD-V2-14 vs. tlačidlo FR-10; návrh: vrátiť AD-V2-07).
-2. Voliteľne review `05-plan.md` v čistej session (04 V2).
-3. Postupovať podľa `05-plan.md` od kroku 0 (zosúladenie dokumentov), potom kroky 1 až 13; po každom kroku commit, push a aktualizácia tohto súboru.
-4. Krok 12 (Supabase naživo) vyžaduje, aby používateľka založila projekt a vyplnila `backend/.env`.
+1. Voliteľne review `05-plan.md` v čistej session (04 V2).
+2. Krok 1 z `05-plan.md` (B2, B3 – vstupy IN-04 až IN-06), potom kroky 2 až 13; po každom kroku commit, push a aktualizácia tohto súboru.
+3. Krok 12 (Supabase naživo) vyžaduje, aby používateľka založila projekt a vyplnila `backend/.env`.
 
 ---
 
