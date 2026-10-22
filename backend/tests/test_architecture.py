@@ -44,3 +44,8 @@ def test_supabase_a_prostredie_iba_v_povolenych_moduloch(path):
 def test_zakladne_moduly_bez_importov_aplikacie(path):
     """Pravidlo 2: B1, B2, B4 a B5 neimportujú žiadny modul aplikácie."""
     assert {n for n in imports(APP / path) if n.startswith('app')} == set()
+
+
+def test_b6_importuje_iba_b4():
+    """Pravidlo 2: B6 (extra_payment.py) importuje z aplikácie iba B4 (mortgage.py)."""
+    assert {n for n in imports(APP / 'domain/extra_payment.py') if n.startswith('app')} == {'app.domain.mortgage'}
